@@ -14,7 +14,7 @@ build: ${case}.o
 	$(CC) $(INCLUDES) $(CFLAGS) -o $(OUT) $(LIBS) ${case}.o
 	$(RM) *.o
 
-dax_grep.o: ${case}.c
+${case}.o: ${case}.c
 	$(CC) $(INCLUDES) $(CFLAGS) -c ${case}.c
 clean:
 	$(RM) *.o $(OUT)
