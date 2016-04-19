@@ -27,14 +27,21 @@ void print128_num(__m128i var)
 }
 
 
+
+
 void count_query(uint64_t **stream, int numberOfElements, int predicate){
 	__m128i mask_register, mask_register2, mask_register3, mask_register4; 
 	unsigned char mask[16];
-	mask[0] = 0x00;mask[4] = 0x01;mask[8] = 0x02;mask[12] = 0x03;
-	mask[1] = 0x80;mask[2] = 0x80;mask[3] = 0x80;mask[5] = 0x80;
-	mask[6] = 0x80;mask[7] = 0x80;mask[9] = 0x80;mask[10] = 0x80;
-	mask[11] = 0x80;mask[13] = 0x80;mask[14] = 0x80;mask[15] = 0x80;
-	mask_register = _mm_loadu_si128((__m128i *)mask); 
+
+	memset(mask, 0x80, sizeof(mask));
+
+	mask[0] = 0x00;
+	mask[4] = 0x01;
+	mask[8] = 0x02;
+	mask[12] = 0x03;
+
+	mask_register = _mm_loadu_si128((__m128i *)mask);
+ 
 	
 	mask[0] = 0x04;mask[4] = 0x05;mask[8] = 0x06;mask[12] = 0x07;
 	mask_register2 = _mm_loadu_si128((__m128i *)mask); 

@@ -2,7 +2,7 @@ CC=/opt/solarisstudio12.4/bin/cc
 
 .PHONY: all clean cleannall
 
-all: load_unsigned_word
+all: load_unsigned_word 8bits
 
 %:%.c
 	$(CC) -g  -o $@ $^ -m64  -xarch=sparcvis -xvis
@@ -10,7 +10,7 @@ all: load_unsigned_word
 
 clean:
 	rm -f *.asm
-	rm -f load_unsigned_word
+	rm -f load_unsigned_word 8bits
 
 cleanall: clean
 	rm -f *~
