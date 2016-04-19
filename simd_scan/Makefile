@@ -11,7 +11,7 @@ LIBS=-l m
 
 all: build
 build: ${case}.o
-	$(CC) $(INCLUDES) $(CFLAGS) -o $(OUT) $(LIBS) ${case}.o
+	$(CC)  $(INCLUDES) $(CFLAGS) -o $(OUT) $(LIBS) ${case}.o
 	$(RM) *.o
 
 ${case}.o: ${case}.c

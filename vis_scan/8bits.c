@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vis.h>
+#include <time.h>
 
 #define error(a) do{ \
 	perror(a);\
@@ -16,29 +17,32 @@
  * All in all, 16 values (0xF)
  * 
  * Predicate = an upper bound (<)
- *
+ *-
  * Dans la version originale, le pr?dicat est n, pour dire <n.
  * On r?cup?re donc le nombre de valeurs qui correspondent ? ce pr?dicat.
  *
  */
 
-/**
- * The stream data is already formatted. (In theory)
- */
-void count_query(uint64_t ** stream, int number_of_elements, int predicate)
+void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
 {
 
 	/* Compare lt, with no pointers! */
 
-	int i, constant, aux;
-	int result = 0;
-	for (i = 0; i < 4; i++) {
-		constant <<= 8;
-		constant += predicate;
-	}
+	int i, aux = 0, result = 0;
+	double constant, value;
+	struct tms begin, end;
 
-	for (i = 0; i < number_of_elements; i++) {
-		aux = vis_fucmplt8(*stream[i] * 1.0, constant);
+	for (i = 0; i < 4; i++) {
+		aux <<= 8;
+		aux += predicate;
+	}
+	constant = aux;
+
+	times(&begin);
+
+	for (i = 0; i < number_of_buffers; i++) {
+		value = (*stream)[i] * 1.0;
+		aux = vis_fucmplt8(value, constant);
 
 		printf("aux = %d\n", aux);
 
@@ -49,35 +53,14 @@ void count_query(uint64_t ** stream, int number_of_elements, int predicate)
 		}
 	}
 
-	printf("In the end, %d values were found!\n");
+	times(&end);
 
-	/*
-	   int i, aux = 0;
-	   double *Constant, constant_register, var_register;
-	   double *Variable;
-
-	   if(posix_memalign((void *)&Constant, 8, sizeof(double)))
-	   error("memalign");
-	   if(posix_memalign((void *)&Variable, 8, sizeof(double)))
-	   error("memalign");
-
-	   for(i=0; i<4; i++){
-	   aux  <<=  8;
-	   aux += predicate;
-	   }
-
-	   *Constant = aux * 1.0;
-
-	   constant_register = vis_ld_d64(Constant);
-
-	   for(i=0; i<number_of_elements; i++){
-
-	   *Variable = *stream[i] * 1.0;
-	   constant_register = vis_ld_d64(Variable);
-
-	   }
-	 */
-
+	printf
+	    ("In the end, %d values were found to be smaller than %d in approx %d clocks!\n",
+	     result, predicate,
+	     (end.tms_utime - begin.tms_utime) + (end.tms_stime -
+						  begin.tms_stime)
+	    );
 }
 
 int load_data(char *fname, int num_of_bits, int num_of_elements,
@@ -90,17 +73,22 @@ int load_data(char *fname, int num_of_bits, int num_of_elements,
 int main()
 {
 
-	uint64_t tab[2] = { 0 };
+	uint64_t *tab;
 	int i;
+
+	if (posix_memalign((void **)&tab, 8, sizeof(uint64_t) * 2))
+		error("memalign tab");
 
 	for (i = 0; i < 4; i++) {
 		tab[0] <<= 8;
 		tab[0] += i * 2;
 		tab[1] <<= 8;
 		tab[1] += i * 2;
+		printf("Adding two %d\n", i * 2);
 	}
 
 	count_query((uint64_t **) & tab, 2, 3);
 
+	free(tab);
 	return EXIT_SUCCESS;
 }

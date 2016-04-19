@@ -20,4 +20,4 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-#endif	/* __VIS */
+#endif				/* __VIS */
