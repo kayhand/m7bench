@@ -4,7 +4,7 @@ endif
 
 CC=gcc
 CFLAGS=-std=c99 -O3 -march=core-avx-i -mtune=core-avx-i -mavx2
-RM=rm -rf
+RM=rm -f
 OUT=${case}
 INCLUDES=-I .
 LIBS=-l m

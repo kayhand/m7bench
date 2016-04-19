@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-std=c99 -O3 
-RM=rm -rf
+RM=rm -f
 OUT=datagen
 INCLUDES=-I .
 LIBS=-l m
