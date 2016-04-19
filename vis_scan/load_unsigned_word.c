@@ -17,30 +17,28 @@
  *
  */
 
-int main(){
+int main()
+{
 
 	unsigned int *n, *m;
 	int i;
 
-	if(posix_memalign( (void **) &n, 8, sizeof(int)))
+	if (posix_memalign((void **)&n, 8, sizeof(int)))
 		return -1;
-	if(posix_memalign( (void **) &m, 8, sizeof(int)))
+	if (posix_memalign((void **)&m, 8, sizeof(int)))
 		return -1;
 
 	*n = 45;
 	*m = 0;
 
 	// memory -> register
-	 i = vis_ld_u64_nf_le(n);
+	i = vis_ld_u64_nf_le(n);
 
-	 printf("Put value %d, got %d\n", *n, i);
+	printf("Put value %d, got %d\n", *n, i);
 
-	 // register -> memory
-	 __vis_st_uint64_le(i, m);
-	 printf("Done! the new value is %d\n", *m);
-
+	// register -> memory
+	__vis_st_uint64_le(i, m);
+	printf("Done! the new value is %d\n", *m);
 
 	return 0;
 }
-
-
