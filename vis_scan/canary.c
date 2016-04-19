@@ -14,6 +14,7 @@ int main()
 
 	printf("Vis version = %d\n", __VIS);
 
+	// Test symbols
 	p = (void *)vis_read_bmask;
 	p = (void *)vis_addxc;
 

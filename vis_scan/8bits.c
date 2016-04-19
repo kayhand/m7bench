@@ -3,13 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vis.h>
-#include <time.h>
 
 #define error(a) do{ \
 	perror(a);\
 	exit(EXIT_FAILURE);\
 	}while(0);
 
+static __inline__ unsigned long long tick(void){
+  unsigned hi, lo;
+  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+  return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
+}
 /*
  *Data: 8 bits
  *Buffer: 64 bits => values
@@ -30,7 +34,7 @@ void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
 
 	int i, aux = 0, result = 0;
 	double constant, value;
-	struct tms begin, end;
+	long long begin, end;
 
 	for (i = 0; i < 4; i++) {
 		aux <<= 8;
@@ -38,7 +42,7 @@ void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
 	}
 	constant = aux;
 
-	times(&begin);
+	begin = tick();
 
 	for (i = 0; i < number_of_buffers; i++) {
 		value = (*stream)[i] * 1.0;
@@ -53,14 +57,11 @@ void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
 		}
 	}
 
-	times(&end);
+	end = tick();
 
 	printf
 	    ("In the end, %d values were found to be smaller than %d in approx %d clocks!\n",
-	     result, predicate,
-	     (end.tms_utime - begin.tms_utime) + (end.tms_stime -
-						  begin.tms_stime)
-	    );
+	     result, predicate, end - begin);
 }
 
 int load_data(char *fname, int num_of_bits, int num_of_elements,
