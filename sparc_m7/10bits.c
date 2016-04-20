@@ -104,6 +104,7 @@ int main(int argc, char * argv[])
 	printf("DAX SCAN Return Code: %s\n\n", dax_strerror(errno));
 	printf("Total number of selected: %d\n", result->output_bv_popcnt);
 
+	free(criteria1);
 	free(col1);
 	free(src_ctx);
 	free(source);
