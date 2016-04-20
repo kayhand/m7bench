@@ -3,7 +3,7 @@ CFLAGS=    -xarch=native -m64 -xvis -I /opt/solarisstudio12.4/lib/compilers/incl
 
 .PHONY: all clean cleannall
 
-all: canary load_unsigned_word 8bits
+all: canary load_unsigned_word 8bits 
 
 #8bits
 
@@ -13,7 +13,7 @@ all: canary load_unsigned_word 8bits
 
 clean:
 	rm -f *.asm
-	rm -f load_unsigned_word 8bits canary
+	rm -f load_unsigned_word 8bits canary 8bits-2
 
 cleanall: clean
 	rm -f *~

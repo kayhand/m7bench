@@ -3,23 +3,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vis.h>
-#include <time.h>
+#include "SIMD_buffer.c"
+
+//Should be 8, but it's not<
+#define FBUFFER_SIZE 8
 
 #define error(a) do{ \
 	perror(a);\
 	exit(EXIT_FAILURE);\
-	}while(0);
+}while(0);
+
+static __inline__ unsigned long long tick(void)
+{
+	return 0;
+}
 
 /*
  *Data: 8 bits
- *Buffer: 64 bits => values
- * An shuffle extracts 8 bytes
- * All in all, 16 values (0xF)
  * 
  * Predicate = an upper bound (<)
  *-
- * Dans la version originale, le pr?dicat est n, pour dire <n.
- * On r?cup?re donc le nombre de valeurs qui correspondent ? ce pr?dicat.
  *
  */
 
@@ -28,23 +31,30 @@ void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
 
 	/* Compare lt, with no pointers! */
 
-	int i, aux = 0, result = 0;
-	double constant, value;
-	struct tms begin, end;
+	int i, k;
+	uint64_t aux = 0, result = 0, v2 = 0;
+	unsigned long long constant;
+	long long begin, end;
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < FBUFFER_SIZE; i++) {
 		aux <<= 8;
-		aux += predicate;
+		//Just in case, a hard limit on the space taken by the predicated
+		//in the mask
+		aux |= (predicate & 0xFF);
 	}
+
 	constant = aux;
 
-	times(&begin);
+	aux = 0;
+
+	begin = tick();
 
 	for (i = 0; i < number_of_buffers; i++) {
-		value = (*stream)[i] * 1.0;
-		aux = vis_fucmplt8(value, constant);
 
-		printf("aux = %d\n", aux);
+		//This is the MARK
+		aux =
+		    vis_fucmplt8(vis_ll_to_double((*stream)[i]),
+				 vis_ll_to_double(constant));
 
 		//Should aux be an immediate value:
 		while (aux > 0) {
@@ -53,14 +63,11 @@ void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
 		}
 	}
 
-	times(&end);
+	end = tick();
 
 	printf
 	    ("In the end, %d values were found to be smaller than %d in approx %d clocks!\n",
-	     result, predicate,
-	     (end.tms_utime - begin.tms_utime) + (end.tms_stime -
-						  begin.tms_stime)
-	    );
+	     result, predicate, end - begin);
 }
 
 int load_data(char *fname, int num_of_bits, int num_of_elements,
@@ -74,20 +81,20 @@ int main()
 {
 
 	uint64_t *tab;
-	int i;
+	//Only FBUFFER_SIZE values will be used
+	int i, vector[8] = { 3, 7, 3, 7, 3, 7, 3, 5 };
+	int j;
 
-	if (posix_memalign((void **)&tab, 8, sizeof(uint64_t) * 2))
+	if (posix_memalign((void **)&tab, 8, sizeof(uint64_t) * 100))
 		error("memalign tab");
 
-	for (i = 0; i < 4; i++) {
-		tab[0] <<= 8;
-		tab[0] += i * 2;
-		tab[1] <<= 8;
-		tab[1] += i * 2;
-		printf("Adding two %d\n", i * 2);
-	}
+	for (j = 0; j < 100; j++)
+		for (i = 0; i < FBUFFER_SIZE; i++) {
+			tab[j] <<= 8;
+			tab[j] |= vector[i];
+		}
 
-	count_query((uint64_t **) & tab, 2, 3);
+	count_query((uint64_t **) & tab, 100, 5);
 
 	free(tab);
 	return EXIT_SUCCESS;
