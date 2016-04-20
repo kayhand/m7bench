@@ -7,9 +7,9 @@
 #include "SIMD_buffer.c"
 
 //Should be 8, but it's not<
-#define FBUFFER_SIZE 8
+#define FBUFFER_SIZE 4
 
-#define DISPLACEMENT 8
+#define DISPLACEMENT 16
 
 #define error(a) do{ \
 	perror(a);\
@@ -18,11 +18,6 @@
 
 static __inline__ unsigned long long tick(void)
 {
-	/*
-	   unsigned hi, lo;
-	   __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
-	   return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
-	 */
 	return clock();
 }
 
@@ -48,7 +43,7 @@ void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
 		aux <<= DISPLACEMENT;
 		//Just in case, a hard limit on the space taken by the predicated
 		//in the mask
-		aux |= (predicate & 0xFF);
+		aux |= (predicate & 0xFFFF);
 	}
 
 	constant = aux;
@@ -61,8 +56,8 @@ void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
 
 		//This is the MARK
 		aux =
-		    vis_fucmplt8(vis_ll_to_double((*stream)[i]),
-				 vis_ll_to_double(constant));
+		    __vis_fpcmpule16(vis_ll_to_double((*stream)[i]),
+				     vis_ll_to_double(constant));
 
 		//Should aux be an immediate value:
 		while (aux > 0) {
@@ -74,7 +69,7 @@ void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
 	end = tick();
 
 	printf
-	    ("In the end, %d values were found to be smaller than %d in approx %d clocks!\n",
+	    ("In the end, %d values were found to be smaller or equal to %d in approx %d clocks!\n",
 	     result, predicate, end - begin);
 }
 
@@ -90,7 +85,7 @@ int main()
 
 	uint64_t *tab;
 	//Only FBUFFER_SIZE values will be used
-	int i, vector[8] = { 3, 7, 3, 7, 3, 7, 3, 5 };
+	int i, vector[8] = { 8, 11, 6, 32 };
 	int j;
 
 	if (posix_memalign((void **)&tab, 8, sizeof(uint64_t) * 100))
@@ -102,7 +97,9 @@ int main()
 			tab[j] |= vector[i];
 		}
 
-	count_query((uint64_t **) & tab, 100, 5);
+	count_query((uint64_t **) & tab, 100, 9);
+
+	printf("I was expecting two positive results per query\n");
 
 	free(tab);
 	return EXIT_SUCCESS;
