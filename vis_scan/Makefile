@@ -1,6 +1,6 @@
 CC=/opt/solarisstudio12.4/bin/cc
 CFLAGS=    -xarch=native -m64 -xvis -I /opt/solarisstudio12.4/lib/compilers/include/cc/
-TARGETS = canary load_unsigned_word 8bits  16bits 32bits
+TARGETS = canary load_unsigned_word 8bits  16bits 32bits 4bits
 
 .PHONY: all clean cleannall
 
