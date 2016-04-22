@@ -7,7 +7,7 @@
 #include <inttypes.h>
 #include <math.h>
 
-#define WORD_SIZE 25 
+#define WORD_SIZE 30 
 
 void reserveMemory(uint64_t **data_stream, int number_of_segments, int num_of_bits){
 	data_stream = (uint64_t **) malloc(sizeof(uint64_t *) * (number_of_segments));
@@ -18,7 +18,7 @@ void reserveMemory(uint64_t **data_stream, int number_of_segments, int num_of_bi
 	}
 }
 
-int load_data(char *fname, int num_of_bits, int codes_per_segment, int numberOfSegments, int predicate, uint64_t **stream){
+int load_data(char *fname, int num_of_bits, int codes_per_segment, int numberOfSegments, int predicate, uint64_t *stream){
  	FILE *file;
 	if((file = fopen(fname, "r")) == NULL){
 		return(-1);
@@ -30,6 +30,7 @@ int load_data(char *fname, int num_of_bits, int codes_per_segment, int numberOfS
 	uint64_t curVal;
 	int rowId = 0;
 
+	int rows = num_of_bits + 1;
 	while(fscanf(file, "%u", &newVal) == 1){
 		curSegment = values_written / codes_per_segment;
 		if(curSegment >= numberOfSegments)
@@ -42,12 +43,13 @@ int load_data(char *fname, int num_of_bits, int codes_per_segment, int numberOfS
 		rowId = codes_written % (num_of_bits + 1);
 		//Check if we need to append to an existing word
 		if(codes_written < (num_of_bits + 1)){
-			stream[curSegment][codes_written] = (0 << num_of_bits) | newVal; 
+			stream[curSegment * rows + codes_written] = (0 << num_of_bits) | newVal;
+			//stream[curSegment][codes_written] = (0 << num_of_bits) | newVal; 
 		}
 		else{
-			curVal = stream[curSegment][rowId];
-			curVal = curVal << (num_of_bits +1);
-			stream[curSegment][rowId] = curVal | ((0 << num_of_bits) | newVal);
+			curVal = stream[curSegment * rows + rowId];
+			curVal = curVal << rows;
+			stream[curSegment * rows + rowId] = curVal | ((0 << num_of_bits) | newVal);
 		}
 		values_written++;
 		codes_written++;
@@ -61,25 +63,24 @@ int load_data(char *fname, int num_of_bits, int codes_per_segment, int numberOfS
 	remainder %= codes_per_segment;
 
 	while(remainder > 0){
-		curVal = stream[curSegment][rowId];
-		curVal = curVal << (num_of_bits + 1);
-		stream[curSegment][rowId] = curVal | ((0 << num_of_bits) | predicate);
+		curVal = stream[curSegment * rows + rowId];
+		curVal = curVal << rows;
+		stream[curSegment * rows + rowId] = curVal | ((0 << num_of_bits) | predicate);
 		rowId++;
 		remainder--;
 	}
 
-
 	for(int i = 0; i < numberOfSegments; i++){
 		printf("Segment %d: \n", i);
 		for(int j = 0; j < num_of_bits +1; j++){
-			printf("%lu\n", stream[i][j]);
+			printf("%lu\n", stream[i * rows + j]);
 		}
 	}
 	
 	return(0);
 }
 
-void count_query(uint64_t **stream, int num_of_bits, int numberOfSegments, int predicate){
+void count_query(uint64_t *stream, int num_of_bits, int numberOfSegments, int predicate){
 	uint64_t upper_bound = (0 << num_of_bits) | predicate; 
 	uint64_t mask = (0 << num_of_bits) | (uint64_t) (pow(2, num_of_bits) - 1);
 	
@@ -93,7 +94,7 @@ void count_query(uint64_t **stream, int num_of_bits, int numberOfSegments, int p
 
 	for(int i = 0; i < numberOfSegments; i++){
 		for(int j = 0; j < num_of_bits + 1; j++){
-			cur_result = stream[i][j];
+			cur_result = stream[i * (num_of_bits + 1) + j];
 			cur_result = cur_result ^ mask;
 			cur_result += upper_bound;
 			cur_result = cur_result & ~mask;
@@ -119,19 +120,12 @@ int main(int argc, char * argv[]){
 	int number_of_segments =  ceil(num_of_elements * 1.0 / codes_per_segment); //Total number of segments needed to keep the data
 	printf("%d \n", number_of_segments);
 
-	uint64_t **data_stream;
-	data_stream = (uint64_t **) malloc(sizeof(uint64_t *) * (number_of_segments));
-	if(data_stream){
-		for(int i = 0; i < number_of_segments; i++){
-			(data_stream)[i] = (uint64_t *) malloc((num_of_bits + 1) * sizeof(uint64_t));
-		}
-	}
+	uint64_t *data_stream;
+	data_stream = (uint64_t *) malloc(sizeof(uint64_t) * number_of_segments * (num_of_bits + 1) * 2);
+
 	int errno = load_data(argv[1], num_of_bits, codes_per_segment, number_of_segments, atoi(argv[4]), data_stream);
 	count_query(data_stream, num_of_bits, number_of_segments, atoi(argv[4]));
 
 	//free resources
-	for(int i = 0; i < number_of_segments; i++)
-		free(data_stream[i]);
 	free(data_stream);
-
 }
