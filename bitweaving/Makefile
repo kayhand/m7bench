@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -std=c99 -O0
+CFLAGS=-g -std=c99 -O3
 RM=rm -f
 OUT=bitweaving
 INCLUDES=-I .

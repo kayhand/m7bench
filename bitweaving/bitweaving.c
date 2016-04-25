@@ -7,15 +7,10 @@
 #include <inttypes.h>
 #include <math.h>
 
-#define WORD_SIZE 30 
+#define WORD_SIZE 64 
 
 void reserveMemory(uint64_t **data_stream, int number_of_segments, int num_of_bits){
-	data_stream = (uint64_t **) malloc(sizeof(uint64_t *) * (number_of_segments));
-	if(data_stream){
-		for(int i = 0; i < number_of_segments; i++){
-			(data_stream)[i] = (uint64_t *) malloc((num_of_bits + 1) * sizeof(uint64_t));
-		}
-	}
+	*data_stream = (uint64_t *) malloc(sizeof(uint64_t) * number_of_segments * (num_of_bits + 1) * 2);
 }
 
 int load_data(char *fname, int num_of_bits, int codes_per_segment, int numberOfSegments, int predicate, uint64_t *stream){
@@ -32,6 +27,7 @@ int load_data(char *fname, int num_of_bits, int codes_per_segment, int numberOfS
 
 	int rows = num_of_bits + 1;
 	while(fscanf(file, "%u", &newVal) == 1){
+		//printf("Val: %u\n", newVal);
 		curSegment = values_written / codes_per_segment;
 		if(curSegment >= numberOfSegments)
 			break;
@@ -58,25 +54,29 @@ int load_data(char *fname, int num_of_bits, int codes_per_segment, int numberOfS
 
 	fclose(file);
 
-	rowId++;
 	int remainder = codes_per_segment  - (codes_written % codes_per_segment);
 	remainder %= codes_per_segment;
 
+	int curSlot = 0;
 	while(remainder > 0){
-		curVal = stream[curSegment * rows + rowId];
+		rowId = codes_written % (num_of_bits + 1);
+		curSlot = curSegment * rows + rowId;
+		curVal = stream[curSlot];
 		curVal = curVal << rows;
-		stream[curSegment * rows + rowId] = curVal | ((0 << num_of_bits) | predicate);
-		rowId++;
+		stream[curSlot] = curVal | ((0 << num_of_bits) | predicate);
+		codes_written++;
 		remainder--;
 	}
 
+	printf("In the end %d codes are written!\n", codes_written);
+	/*
 	for(int i = 0; i < numberOfSegments; i++){
 		printf("Segment %d: \n", i);
 		for(int j = 0; j < num_of_bits +1; j++){
 			printf("%lu\n", stream[i * rows + j]);
 		}
 	}
-	
+	*/
 	return(0);
 }
 
@@ -85,8 +85,8 @@ void count_query(uint64_t *stream, int num_of_bits, int numberOfSegments, int pr
 	uint64_t mask = (0 << num_of_bits) | (uint64_t) (pow(2, num_of_bits) - 1);
 	
 	for(int i = 0; i < WORD_SIZE/(num_of_bits + 1) - 1; i++){
-		upper_bound = upper_bound | (upper_bound << (num_of_bits + 1));
-		mask = mask | (mask << (num_of_bits + 1));
+		upper_bound |= (upper_bound << (num_of_bits + 1));
+		mask |= (mask << (num_of_bits + 1));
 	} 
 
 	uint64_t result_vector, cur_result, lower;
@@ -99,6 +99,7 @@ void count_query(uint64_t *stream, int num_of_bits, int numberOfSegments, int pr
 			cur_result += upper_bound;
 			cur_result = cur_result & ~mask;
 			count += __builtin_popcount(cur_result);
+			count += __builtin_popcount(cur_result >> 32);
 		}
 	}
 	printf("Total number of selected values: %d\n", count);	
@@ -121,7 +122,7 @@ int main(int argc, char * argv[]){
 	printf("%d \n", number_of_segments);
 
 	uint64_t *data_stream;
-	data_stream = (uint64_t *) malloc(sizeof(uint64_t) * number_of_segments * (num_of_bits + 1) * 2);
+	reserveMemory(&data_stream, number_of_segments, num_of_bits);
 
 	int errno = load_data(argv[1], num_of_bits, codes_per_segment, number_of_segments, atoi(argv[4]), data_stream);
 	count_query(data_stream, num_of_bits, number_of_segments, atoi(argv[4]));
