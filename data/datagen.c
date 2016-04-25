@@ -1,25 +1,19 @@
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <stdint.h>
 #include <time.h>
-#include <math.h>
+#include <unistd.h>
 
 int load_data(char *fname, int maxNumber, int size){
+	int curInd = 0, curVal = 0;
  	FILE *file;
 
-	int curInd = 0;
-	int curVal = 0;
 	if((file = fopen(fname, "w")) == NULL){
-		return(-1);
 		perror("Could not open");
+		exit(EXIT_FAILURE);
 	}
 
-	if (fseek(file, 0, SEEK_END) != 0)
-	{
-		perror("fseek");
-		exit(1); 
-	}
 
 	srand(time(NULL));
 	while(curInd < size){
@@ -28,10 +22,11 @@ int load_data(char *fname, int maxNumber, int size){
 		curInd++;
 	}
 
-	if(file){
-		fclose(file);
+	if(fclose(file)){
+		perror("fclose");
+		exit(EXIT_FAILURE);
 	}
-	return(0);
+	return(EXIT_SUCCESS);
 }
 
 int main(int argc, char * argv[]){
@@ -40,6 +35,5 @@ int main(int argc, char * argv[]){
                 exit(1);
         }
 
-	int errno;
-	errno = load_data(argv[1], pow(2, atoi(argv[2])), atoi(argv[3]));
+	return load_data(argv[1], pow(2, atoi(argv[2])), atoi(argv[3]));
 }

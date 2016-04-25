@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=c99 -O3 
+CFLAGS=-std=c99 -O3  -Wall
 RM=rm -f
 OUT=datagen
 INCLUDES=-I .
@@ -13,5 +13,5 @@ build: datagen.o
 datagen.o: datagen.c
 	$(CC) $(INCLUDES) $(CFLAGS) -c datagen.c
 clean:
-	$(RM) *.o $(OUT)
+	$(RM) *.o $(OUT) *~
 
