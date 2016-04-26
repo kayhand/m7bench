@@ -104,6 +104,8 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 			input = (__m128i*) *stream + i;
 			cur_reg = _mm_load_si128 (input);
 		}
+
+		//Compiler needs a direct value.
 		if(shiftAmount == 15)
 			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 15);
 		else if(shiftAmount == 14)
@@ -136,6 +138,7 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 1);
 		else if(shiftAmount == 0)
 			aligned_reg = old_reg;
+
 
 			
 		__m128i shuffled = _mm_shuffle_epi8 (aligned_reg, mask_register);
