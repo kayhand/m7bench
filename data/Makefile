@@ -5,13 +5,14 @@ OUT=datagen
 INCLUDES=-I .
 LIBS=-l m
 
-all: build
-build: datagen.o
-	$(CC) $(INCLUDES) $(CFLAGS) -o $(OUT) datagen.o $(LIBS)
-	$(RM) *.o
+all: $(OUT)
 
-datagen.o: datagen.c
-	$(CC) $(INCLUDES) $(CFLAGS) -c datagen.c
+%:%.o
+	$(CC)  $(CFLAGS) $(INCLUDES)  -o $@ $^   $(LIBS)
+
+%.o:%.c
+	$(CC)  $(CFLAGS) $(INCLUDES) -c $^  $(LIBS)
+
 clean:
 	$(RM) *.o $(OUT) *~
 
