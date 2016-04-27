@@ -35,6 +35,9 @@ int load_data_8bits(FILE * f, __m256i ** stream)
 			nb_of_elements++;
 	}
 	rewind(f);
+
+	nb_of_elements = ((int) ceil( nb_of_elements / 768.0)) * 3;
+
 	stream = malloc(sizeof(__m256i) * nb_of_elements);
 
 	if (stream == 0) {
