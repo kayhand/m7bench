@@ -17,7 +17,7 @@ static __inline__ unsigned long long tick(void)
 	return ((unsigned long long)lo) | (((unsigned long long)hi) << 32);
 }
 
-int load_data_8bits(FILE * f,__m256i ** stream)
+int load_data_8bits(FILE * f, __m256i ** stream)
 {
 	/*
 	 * The strem is filled with three buffers at a time.
@@ -30,14 +30,14 @@ int load_data_8bits(FILE * f,__m256i ** stream)
 	char c;
 	int values[768] = { 0 };
 
-	while(!feof(f)){
-		if(fgetc(f) == '\n')
+	while (!feof(f)) {
+		if (fgetc(f) == '\n')
 			nb_of_elements++;
 	}
 	rewind(f);
 	stream = malloc(sizeof(__m256i) * nb_of_elements);
 
-	if(stream == 0){
+	if (stream == 0) {
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}
@@ -69,17 +69,22 @@ int load_data_8bits(FILE * f,__m256i ** stream)
 		n = 0;
 		for (i = 0; i < 3; i++) {
 			*(stream[N++]) =
-			    _mm256_set_epi8(tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++], tab[n++],
-					    tab[n++], tab[n++]);
+				_mm256_set_epi8(tab[n + 0], tab[n + 1], tab[n + 2],
+					    tab[n + 3], tab[n + 4], tab[n + 5],
+					    tab[n + 6], tab[n + 7], tab[n + 8],
+					    tab[n + 9], tab[n + 10],
+					    tab[n + 11], tab[n + 12],
+					    tab[n + 13], tab[n + 14],
+					    tab[n + 15], tab[n + 16],
+					    tab[n + 17], tab[n + 18],
+					    tab[n + 19], tab[n + 20],
+					    tab[n + 21], tab[n + 22],
+					    tab[n + 23], tab[n + 24],
+					    tab[n + 25], tab[n + 26],
+					    tab[n + 27], tab[n + 28],
+					    tab[n + 29], tab[n + 30],
+					    tab[n + 31]);
+			n += 32;
 		}
 
 	}
@@ -240,7 +245,6 @@ void count_query(__m256i * stream, int numberOfElements, int predicate)
 
 		// (a+b) >> 64
 		shifted[1] =
-			_mm_alignr_epi32
 		    _mm256_alignr_epi32(*first_input, *(first_input + 1), 2);
 		first_input++;
 
@@ -288,16 +292,16 @@ int main(int argc, char *argv[])
 	int nb_of_elements;
 	FILE *f = NULL;
 
-	if(argc<3)
+	if (argc < 3)
 		return EXIT_FAILURE;
 
-	if((f = fopen(argv[0], "r")) == NULL){
+	if ((f = fopen(argv[0], "r")) == NULL) {
 		perror("fopen");
 		return EXIT_FAILURE;
 	}
 
 	load_data_8bits(f, &stream);
-	count_query(stream,  nb_of_elements, 5);
+	count_query(stream, nb_of_elements, 5);
 
 	return 0;
 }
