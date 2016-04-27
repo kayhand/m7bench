@@ -1,6 +1,7 @@
 #include <immintrin.h>
 #include <inttypes.h>
 #include <malloc.h>
+#include <math.h>
 #include <mmintrin.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -36,11 +37,14 @@ int load_data_8bits(FILE * f, __m256i ** stream)
 	}
 	rewind(f);
 
-	nb_of_elements = ((int) ceil( nb_of_elements / 768.0)) * 3;
+	nb_of_elements = ((int) ceil( nb_of_elements * 3 / 256));
+	nb_of_elements += 3 - (nb_of_elements % 3);
 
-	stream = malloc(sizeof(__m256i) * nb_of_elements);
 
-	if (stream == 0) {
+
+	*stream = malloc(sizeof(__m256i) * nb_of_elements);
+
+	if (*stream == 0) {
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}

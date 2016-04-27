@@ -1,6 +1,7 @@
 #include <immintrin.h>
 #include <inttypes.h>
 #include <malloc.h>
+#include <math.h>
 #include <mmintrin.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -23,44 +24,56 @@ int load_data_8bits(FILE * f, __m128i ** stream)
 	 * The greater cycle is 9 codes long (=> 128 values)
 	 */
 
-	int nb_of_elements = 0, i, n = 0;
+	int nb_of_elements = 0, n = 0;
 	int N = 0;
-	char tab[9] = { 0 };
-	char c;
-	int values[768] = { 0 };
+	int value, aux;
+	unsigned __int128 buff;
 
 	while (!feof(f)) {
 		if (fgetc(f) == '\n')
 			nb_of_elements++;
 	}
 	rewind(f);
-	stream = malloc(sizeof(__m128i) * nb_of_elements);
 
-	if (stream == 0) {
+	nb_of_elements = ceil( nb_of_elements * 9 / 128);
+	*stream = malloc(sizeof(__m128i) * nb_of_elements);
+
+	if (*stream == NULL) {
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}
 
-	while (!feof(f)) {
-		for (i = 0; i < 128; i++) {
-			if (fscanf(f, "%d", &(values[i])) == EOF)
-				break;
-			values[i] &= 511;
+	n = 128;
+	buff = 0;
+	while(!feof(f)){
+
+		fscanf(f, "%d", &value);
+		value &= 0x1ff;
+		if(n>=9){
+			buff = (buff<<9) & value;
+			n -= 9;
+			if(n==0){
+				*(stream[N++]) = _mm_set_epi64x( buff & ((1<<64) - 1) , buff>>64);
+				n=128;
+			}
+		}else{
+			aux = (value>>(9-n));
+			buff = (buff<<n) & aux;
+			*(stream[N++]) = _mm_set_epi64x( buff & ((1<<64) - 1) , buff>>64);
+			buff = value;
+			n = 128 - (9-n);
 		}
-		for (; i < 128; i++)
-			values[i] = 0;
+	}
+	if(n != 0 && n != 128){
 
-		i = 0;
-		while (i < 768 && n < 96) {
-
-		}
-
-		n = 0;
-
-		exit(-1);
+		buff <<= n;
+		*(stream[N++]) = _mm_set_epi64x( buff & ((1<<64) - 1) , buff>>64);
 
 	}
-	return nb_of_elements;
+
+
+
+	return N;
 }
 
 /*
