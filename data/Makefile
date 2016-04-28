@@ -7,6 +7,8 @@ LIBS=-l m
 
 all: $(OUT)
 
+%:%.c
+
 %:%.o
 	$(CC)  $(CFLAGS) $(INCLUDES)  -o $@ $^   $(LIBS)
 
