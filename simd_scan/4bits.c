@@ -32,14 +32,12 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 	__m128i clean_register;
 
 	unsigned char mask[16];
+	memset(mask, 0x80, sizeof(mask));
 	mask[0] = 0x00;
 	mask[4] = 0x00;
 	mask[8] = 0x01;
 	mask[12] = 0x01;
 
-	mask[1] = 0x80;mask[2] = 0x80;mask[3] = 0x80;mask[5] = 0x80;
-	mask[6] = 0x80;mask[7] = 0x80;mask[9] = 0x80;mask[10] = 0x80;
-	mask[11] = 0x80;mask[13] = 0x80;mask[14] = 0x80;mask[15] = 0x80;
 	mask_register = _mm_loadu_si128((__m128i *)mask); 
 	
 	mask[0] = 0x02;mask[4] = 0x02;mask[8] = 0x03;mask[12] = 0x03;
@@ -68,7 +66,7 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 
 	__m128i* input; 
 
-	unsigned int cur_res;
+	unsigned int volatile cur_res;
 	int i = 0;
 	int elements_read = 0;
 	unsigned int count = 0;
@@ -83,46 +81,52 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 		__m128i cleaned = _mm_and_si128(shuffled, clean_register);
 		__m128i lt = _mm_cmplt_epi32(cleaned, upper_bound);
 		cur_res = _mm_movemask_ps((__m128) lt);
+		//count += _popcnt32(cur_res);
 
 		shuffled = _mm_shuffle_epi8 (cur_reg, mask_register2);
 		cleaned = _mm_and_si128(shuffled, clean_register);
 		lt = _mm_cmplt_epi32(cleaned, upper_bound);
-		cur_res |= (_mm_movemask_ps((__m128) lt)) << 4 ;
+		cur_res = _mm_movemask_ps((__m128) lt);
+		//count += _popcnt32(cur_res);
 
 		shuffled = _mm_shuffle_epi8 (cur_reg, mask_register3);
 		cleaned = _mm_and_si128(shuffled, clean_register);
 		lt = _mm_cmplt_epi32(cleaned, upper_bound);
-		cur_res |= (_mm_movemask_ps((__m128) lt)) << 8 ;
+		cur_res = _mm_movemask_ps((__m128) lt);
+		//count += _popcnt32(cur_res);
 
 		shuffled = _mm_shuffle_epi8 (cur_reg, mask_register4);
 		cleaned = _mm_and_si128(shuffled, clean_register);
 		lt = _mm_cmplt_epi32(cleaned, upper_bound);
-		cur_res |= (_mm_movemask_ps((__m128) lt)) << 12 ;
+		cur_res = _mm_movemask_ps((__m128) lt);
+		//count += _popcnt32(cur_res);
 
 		shuffled = _mm_shuffle_epi8 (cur_reg, mask_register5);
 		cleaned = _mm_and_si128(shuffled, clean_register);
 		lt = _mm_cmplt_epi32(cleaned, upper_bound);
-		cur_res |= (_mm_movemask_ps((__m128) lt)) << 16 ;
+		cur_res = _mm_movemask_ps((__m128) lt);
+		//count += _popcnt32(cur_res);
 
 		shuffled = _mm_shuffle_epi8 (cur_reg, mask_register6);
 		cleaned = _mm_and_si128(shuffled, clean_register);
 		lt = _mm_cmplt_epi32(cleaned, upper_bound);
-		cur_res |= (_mm_movemask_ps((__m128) lt)) << 20 ;
+		cur_res = _mm_movemask_ps((__m128) lt);
+		//count += _popcnt32(cur_res);
 
 		shuffled = _mm_shuffle_epi8 (cur_reg, mask_register7);
 		cleaned = _mm_and_si128(shuffled, clean_register);
 		lt = _mm_cmplt_epi32(cleaned, upper_bound);
-		cur_res |= (_mm_movemask_ps((__m128) lt)) << 24 ;
+		cur_res = _mm_movemask_ps((__m128) lt);
+		//count += _popcnt32(cur_res);
 
 		shuffled = _mm_shuffle_epi8 (cur_reg, mask_register8);
 		cleaned = _mm_and_si128(shuffled, clean_register);
 		lt = _mm_cmplt_epi32(cleaned, upper_bound);
-		cur_res |= (_mm_movemask_ps((__m128) lt)) << 28 ;
-
-		count += _popcnt32(cur_res);
-		cur_res = 0;
-		i++;
+		cur_res = _mm_movemask_ps((__m128) lt);
+		//count += _popcnt32(cur_res);
 		
+		i++;
+		count++;
 		elements_read += 32;
 	}
         res = tick() - res;
@@ -144,7 +148,7 @@ int load_data(char *fname, int num_of_bits, int num_of_elements, uint64_t **stre
 	}
    	int size_indata = ftell(file);
     	rewind(file);
-	*stream = (uint64_t *) memalign(8, num_of_elements * sizeof(uint64_t));
+	*stream = (uint64_t *) memalign(16, num_of_elements * sizeof(uint64_t));
 
 	int modVal = 0;
 	uint64_t curIndex = 0, prevIndex = 0;

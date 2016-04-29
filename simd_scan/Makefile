@@ -1,5 +1,5 @@
 CC=
-CFLAGS= -std=c99  -O3 -march=core-avx-i -mtune=core-avx-i -mavx2
+CFLAGS= -g -std=c99  -O3 -march=core-avx-i -mtune=core-avx-i -mavx2
 RM=rm -f
 INCLUDES=-I .
 LIBS=-l m

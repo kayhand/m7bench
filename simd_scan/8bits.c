@@ -110,7 +110,7 @@ int load_data(char *fname, int num_of_bits, int num_of_elements, uint64_t **stre
 	}
    	int size_indata = ftell(file);
     	rewind(file);
-	*stream = (uint64_t *) memalign(8, num_of_elements * sizeof(uint64_t));
+	*stream = (uint64_t *) memalign(16, num_of_elements * sizeof(uint64_t));
 
 	int modVal = 0;
 	uint64_t curIndex = 0, prevIndex = 0;

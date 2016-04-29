@@ -3,7 +3,7 @@ CFLAGS=-g -std=c99 -O3
 RM=rm -f
 OUT=bitweaving
 INCLUDES=-I .
-LIBS=-l m
+LIBS=-l m -lpthread
 
 all: build
 build: bitweaving.o

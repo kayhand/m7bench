@@ -34,12 +34,12 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 	__m128i clean_register;
 
 	unsigned char mask[16];
+	memset(mask, 0x80, sizeof(mask));
 	mask[0] = 0x00;mask[1] = 0x01;
 	mask[4] = 0x01;mask[5] = 0x02;
 	mask[8] = 0x03;mask[9] = 0x04;
 	mask[12] = 0x04;mask[13] = 0x05;
 
-	mask[2] = 0x80;mask[3] = 0x80;mask[6] = 0x80;mask[7] = 0x80;mask[10] = 0x80;mask[11] = 0x80;mask[14] = 0x80;mask[15] = 0x80;
 	mask_register = _mm_loadu_si128((__m128i *)mask); 
 
 	mask[0] = 0x06;mask[1] = 0x07;
@@ -165,7 +165,7 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 		result = _mm_cmplt_epi32(cleaned, upper_bound);
 
 		cur_res = _mm_movemask_ps((__m128) result);
-		count += _popcnt32(cur_res);
+                count += _popcnt32(cur_res);       
 		//cur_res |= (_mm_movemask_ps((__m128) result)) << (elements_read % 30);
 		elements_read += 10;
 
