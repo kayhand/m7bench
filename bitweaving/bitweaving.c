@@ -6,15 +6,15 @@
 #include <string.h>
 #include <inttypes.h>
 #include <math.h>
+
+#include <../util/time.h>
 #include <../util/thread.h>
 
 #define WORD_SIZE 64 
 
-static __inline__ unsigned long long tick(void){
-  unsigned hi, lo;
-  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
-  return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
-}
+pthread_mutex_t start_mutex;
+pthread_cond_t start_cond;
+int thread_count = 0;
 
 void reserveMemory(uint64_t **data_stream, int number_of_segments, int num_of_bits){
 	*data_stream = (uint64_t *) malloc(sizeof(uint64_t) * number_of_segments * (num_of_bits + 1) * 2);
@@ -29,6 +29,50 @@ void assignParams(query_params **params, uint64_t *data_stream, int num_of_bits,
 	(*params)->num_of_segments = num_of_segments;
 	(*params)->num_of_elements = num_of_elements;
 	(*params)->predicate = predicate;
+}
+
+void assignThreadParams(query_params *params){
+	params->start_mutex = &start_mutex;
+	params->start_cond = &start_cond;
+	params->thread_count = &thread_count;
+}
+
+void printResultVector(uint64_t *result, int elements, int padded, int remainder){
+	uint64_t cur_res;
+	uint64_t cur_comp = pow(2, WORD_SIZE - 1 - padded);
+	int bits = 63 - padded;
+	int count = 0;
+	int i;
+	for(i = 0; i < elements - 1; i++){
+		printf("Segment id : %d\n", i);
+		cur_res = result[i];
+                //count += __builtin_popcount(cur_res);
+                //count += __builtin_popcount(cur_res >> 32);
+		while (bits >= 0) {
+		    if ((cur_res & cur_comp) >> bits)
+			printf("1");
+		    else
+			printf("0");
+
+		    cur_comp >>= 1;
+		    bits--;
+		}
+		printf("\n");
+		bits = 63 - padded;
+		cur_comp = pow(2, WORD_SIZE - 1- padded);
+	}
+	//Last segment with partial
+	cur_res = result[i];
+	while (bits >= 63 - (padded + remainder - 1)){
+	    if ((cur_res & cur_comp) >> bits)
+		printf("1");
+	    else
+		printf("0");
+
+	    cur_comp >>= 1;
+	    bits--;
+	}
+
 }
 
 int load_data(char *fname, int codes_per_segment, query_params *params){
@@ -86,7 +130,6 @@ int load_data(char *fname, int codes_per_segment, query_params *params){
 		remainder--;
 	}
 
-	printf("In the end %d codes are written!\n", codes_written);
 	/*
 	for(int i = 0; i < numberOfSegments; i++){
 		printf("Segment %d: \n", i);
@@ -98,34 +141,38 @@ int load_data(char *fname, int codes_per_segment, query_params *params){
 	return(0);
 }
 
-void count_query(uint64_t *stream, int num_of_bits, int numberOfSegments, int numberOfElements, int predicate){
+void count_query(uint64_t *stream, uint64_t *bit_vector, int num_of_bits, int numberOfSegments, int numberOfElements, int predicate){
 	uint64_t upper_bound = (0 << num_of_bits) | predicate; 
 	uint64_t mask = (0 << num_of_bits) | (uint64_t) (pow(2, num_of_bits) - 1);
 	
 	for(int i = 0; i < WORD_SIZE/(num_of_bits + 1) - 1; i++){
 		upper_bound |= (upper_bound << (num_of_bits + 1));
 		mask |= (mask << (num_of_bits + 1));
-	} 
+	}
 
-	uint64_t result_vector, cur_result, lower;
+	uint64_t cur_result;
 	int count = 0;
-
-	long long res;
-	res = tick();
-
+	int total_codes = num_of_bits + 1; //size of a code with the predicate payload
+	uint64_t local_res = 0;
+	//long long res;
+	//res = tick();
 	for(int i = 0; i < numberOfSegments; i++){
-		for(int j = 0; j < num_of_bits + 1; j++){
-			cur_result = stream[i * (num_of_bits + 1) + j];
+		for(int j = 0; j < total_codes; j++){
+			cur_result = stream[i * total_codes + j];
 			cur_result = cur_result ^ mask;
 			cur_result += upper_bound;
 			cur_result = cur_result & ~mask;
-			count += __builtin_popcount(cur_result);
-			count += __builtin_popcount(cur_result >> 32);
+			local_res = local_res | (cur_result >> j); 
+			//count += __builtin_popcount(cur_result);
+			//count += __builtin_popcount(cur_result >> 32);
 		}
+		bit_vector[i] = local_res;
+		local_res = 0;
 	}
-	res = tick() - res;
 
-	printf("Selected %d values in %lld cycles! \nIt took %lf cycles for each code. \n\n", count, res, res  / (numberOfElements * 1.0));
+	//printf("Count: %d\n", count);
+	//int remainder = numberOfElements - (numberOfSegments - 1) * (numberOfElements / (numberOfSegments - 1));
+	//printResultVector(global_res, numberOfSegments, WORD_SIZE - (num_of_bits + 1) * (WORD_SIZE / (num_of_bits + 1)), remainder);
 }
 
 int main(int argc, char * argv[]){
@@ -148,25 +195,43 @@ int main(int argc, char * argv[]){
 
 	query_params *params;
 	assignParams(&params, data_stream, num_of_bits, num_of_segments, num_of_elements, predicate); 
-
 	int errno = load_data(argv[1], codes_per_segment, params);
 	params->count_query = count_query;
 
-	pthread_t *threads;
-	int num_of_threads;
+	int num_of_threads = atoi(argv[5]);
+	pthread_t threads[num_of_threads];
+	assignThreadParams(params);
 
-	if(atoi(argv[5]) < 2)
-		count_query(data_stream, num_of_bits, num_of_segments, num_of_elements, atoi(argv[4]));
-	else{
-		num_of_threads = atoi(argv[5]);
-		createThreads(&threads, num_of_threads);
-		runThreads(threads, num_of_threads, params);
-		joinThreads(threads, num_of_threads);
-	}
+	pthread_mutex_init(&start_mutex, NULL);
+	pthread_cond_init(&start_cond, NULL);
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+	createThreads(threads, &attr, num_of_threads, params);
+
+	int wait = 1;
+	do{
+		pthread_mutex_lock(&start_mutex);
+		wait = (thread_count < num_of_threads);
+		pthread_mutex_unlock(&start_mutex);
+	} while(wait);
+
+	long long res;
+	res = tick();
+	pthread_cond_broadcast(&start_cond);
+	printf("Threads starting ...\n\n");
+
+	joinThreads(threads, num_of_threads);
+
+	res = tick() - res;
+	printf("It took %lld cycles! in total and \n%lf cycles for each code. \n\n", res, res  / (num_of_elements * 100.0));
+
+	pthread_attr_destroy(&attr);
+	pthread_mutex_destroy(&start_mutex);
+	pthread_cond_destroy(&start_cond);
 
 	//free resources
 	free(params);
 	free(data_stream);
-	if(atoi(argv[5]) > 1)
-		free(threads);
 }
