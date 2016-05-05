@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <x86intrin.h>
 
-
 int predicate_global;
 
 static __inline__ unsigned long long tick(void)
@@ -22,12 +21,12 @@ static __inline__ unsigned long long tick(void)
 
 void print128_num(__m128i var, int binary)
 {
-	uint8_t *val = (uint8_t *) & var;
+	int8_t *val = (int8_t *) & var;
 	int i,j;
 	char buff[20] = "";
 	
 	if(!binary){
-	printf(" %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u \n",
+	printf(" %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n",
 	       val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7],
 	       val[8], val[9], val[10], val[11], val[12], val[13], val[14],
 	       val[15]
@@ -98,6 +97,7 @@ int load_data_17bits(FILE * f, int *nb_values, __m128i ** st)
 			printf("N = %d\n", N);
 			break;
 		}
+
 		value &= 0x1ffff;
 
 		//Debug value, to be shown.
@@ -143,6 +143,8 @@ void count_query(uint8_t *stream, int numberOfElements,int nb_values, int predic
 	__m128i loaded_value, cmp_result;
 	__m128i clean_registers[2];
 	__m128i shuffle_register;	//Shuffle mask
+	__m128i unsigned_to_signed = _mm_set_epi8( INT8_MIN,INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN);
+	__m128i uns2 = _mm_set_epi32(INT32_MIN, INT32_MIN, INT32_MIN, INT32_MIN);
 
 	//The stack is aligned, the heap isn't. So we
 	//need a buffer for the SIMD operations
@@ -230,9 +232,9 @@ void count_query(uint8_t *stream, int numberOfElements,int nb_values, int predic
 
 	res = tick();
 
+	predicate_value[0] = _mm_add_epi32(predicate_value[0], unsigned_to_signed);
+	predicate_value[1] = _mm_add_epi32(predicate_value[1], unsigned_to_signed);
 
-
-	
 	i = 1;
 	while (stream_element < nb_values) {
 		i = i ? 0 : 1;
@@ -246,6 +248,9 @@ void count_query(uint8_t *stream, int numberOfElements,int nb_values, int predic
 		if (i) {
 			loaded_value =
 			    _mm_and_si128(loaded_value, clean_registers[1]);
+
+		loaded_value = _mm_add_epi32(loaded_value, unsigned_to_signed);
+
 			cmp_result =
 			    _mm_cmpgt_epi32(loaded_value, predicate_value[1]);
 
@@ -253,6 +258,7 @@ void count_query(uint8_t *stream, int numberOfElements,int nb_values, int predic
 		} else {
 			loaded_value =
 			    _mm_and_si128(loaded_value, clean_registers[0]);
+		loaded_value = _mm_add_epi32(loaded_value, unsigned_to_signed);
 			cmp_result =
 			    _mm_cmpgt_epi32(loaded_value, predicate_value[0]);
 			stream -= 8;
@@ -284,14 +290,6 @@ void count_query(uint8_t *stream, int numberOfElements,int nb_values, int predic
 	printf
 	    ("Selected %d values in %lld cycles! \nIt took %lf cycles for each code. \n",
 	     final_result, res, res / (numberOfElements * 1.0));
-
-
-	//Checking the alignment of the predicate values
-	print128_num(predicate_value[0], 1);
-	print128_num(clean_registers[0], 1);
-	print128_num(predicate_value[1], 1);
-	print128_num(clean_registers[1], 1);
-
 }
 
 int main(int argc, char *argv[])
@@ -316,11 +314,5 @@ int main(int argc, char *argv[])
  
 	count_query((uint8_t*)stream, elements_nb, nb_values, predicate_global);
 
-	//Just checking to see where the least and the 
-	__m128i number = _mm_set_epi32(0xE, 0xE, 0xE, 4294967294);
-	printf("Test number!\n");
-	print128_num(number, 1);
-	
-	//free(stream);
 	return 0;
 }
