@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
 	if (argc < 3)
 		return EXIT_FAILURE;
 
-	if ((f = fopen(argv[0], "r")) == NULL) {
+	if ((f = fopen(argv[1], "r")) == NULL) {
 		perror("fopen");
 		return EXIT_FAILURE;
 	}
