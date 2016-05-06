@@ -74,7 +74,7 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 
 	//1st load
 	input = (__m128i*) *stream;
-	old_reg = _mm_load_si128 (input);
+	old_reg = _mm_load_si128(input);
 
 	print128_num(*input);
 	print128_num(old_reg);

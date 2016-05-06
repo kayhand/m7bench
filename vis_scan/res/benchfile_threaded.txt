@@ -1,0 +1,673 @@
+500 000 000 Values.
+====================================
+case 4I'm thread 0, with 31250000 elements!
+Query completed in 655091640ns, 20ns per stream element
+DONE, 1 threads
+I'm thread 0, with 15625000 elements!
+I'm thread 1, with 15625000 elements!
+Query completed in 384079185ns, 24ns per stream element
+Query completed in 407717430ns, 26ns per stream element
+DONE, 2 threads
+I'm thread 0, with 7812500 elements!
+I'm thread 2, with 7812500 elements!
+I'm thread 1, with 7812500 elements!
+I'm thread 3, with 7812500 elements!
+Query completed in 166889235ns, 21ns per stream element
+Query completed in 170628450ns, 21ns per stream element
+Query completed in 188459775ns, 24ns per stream element
+Query completed in 199044315ns, 25ns per stream element
+DONE, 4 threads
+I'm thread 0, with 3906250 elements!
+I'm thread 1, with 3906250 elements!
+I'm thread 2, with 3906250 elements!
+I'm thread 3, with 3906250 elements!
+I'm thread 4, with 3906250 elements!
+I'm thread 5, with 3906250 elements!
+I'm thread 6, with 3906250 elements!
+I'm thread 7, with 3906250 elements!
+Query completed in 63320205ns, 16ns per stream element
+Query completed in 81294765ns, 20ns per stream element
+Query completed in 87323700ns, 22ns per stream element
+Query completed in 89327235ns, 22ns per stream element
+Query completed in 90562155ns, 23ns per stream element
+Query completed in 95459490ns, 24ns per stream element
+Query completed in 96669960ns, 24ns per stream element
+Query completed in 99097485ns, 25ns per stream element
+DONE, 8 threads
+I'm thread 0, with 1953125 elements!
+I'm thread 2, with 1953125 elements!
+I'm thread 1, with 1953125 elements!
+I'm thread 3, with 1953125 elements!
+I'm thread 4, with 1953125 elements!
+I'm thread 5, with 1953125 elements!
+I'm thread 6, with 1953125 elements!
+I'm thread 7, with 1953125 elements!
+I'm thread 8, with 1953125 elements!
+I'm thread 9, with 1953125 elements!
+I'm thread 10, with 1953125 elements!
+I'm thread 11, with 1953125 elements!
+I'm thread 12, with 1953125 elements!
+I'm thread 13, with 1953125 elements!
+I'm thread 14, with 1953125 elements!
+I'm thread 15, with 1953125 elements!
+Query completed in 24345555ns, 12ns per stream element
+Query completed in 25501500ns, 13ns per stream element
+Query completed in 27465795ns, 14ns per stream element
+Query completed in 32159535ns, 16ns per stream element
+Query completed in 34641975ns, 17ns per stream element
+Query completed in 38545185ns, 19ns per stream element
+Query completed in 39537345ns, 20ns per stream element
+Query completed in 39665070ns, 20ns per stream element
+Query completed in 41283855ns, 21ns per stream element
+Query completed in 43924530ns, 22ns per stream element
+Query completed in 50567370ns, 25ns per stream element
+Query completed in 51321885ns, 26ns per stream element
+Query completed in 51805350ns, 26ns per stream element
+Query completed in 52016460ns, 26ns per stream element
+Query completed in 51853230ns, 26ns per stream element
+Query completed in 52111335ns, 26ns per stream element
+DONE, 16 threads
+I'm thread 0, with 1562500 elements!
+I'm thread 2, with 1562500 elements!
+I'm thread 3, with 1562500 elements!
+I'm thread 1, with 1562500 elements!
+I'm thread 4, with 1562500 elements!
+I'm thread 5, with 1562500 elements!
+I'm thread 6, with 1562500 elements!
+I'm thread 7, with 1562500 elements!
+I'm thread 8, with 1562500 elements!
+I'm thread 9, with 1562500 elements!
+I'm thread 10, with 1562500 elements!
+I'm thread 11, with 1562500 elements!
+I'm thread 12, with 1562500 elements!
+I'm thread 13, with 1562500 elements!
+I'm thread 14, with 1562500 elements!
+I'm thread 15, with 1562500 elements!
+I'm thread 16, with 1562500 elements!
+I'm thread 17, with 1562500 elements!
+I'm thread 18, with 1562500 elements!
+I'm thread 19, with 1562500 elements!
+Query completed in 25377900ns, 16ns per stream element
+Query completed in 28732110ns, 18ns per stream element
+Query completed in 29132640ns, 18ns per stream element
+Query completed in 29562705ns, 18ns per stream element
+Query completed in 29575620ns, 18ns per stream element
+Query completed in 29721690ns, 19ns per stream element
+Query completed in 29700240ns, 19ns per stream element
+Query completed in 30058500ns, 19ns per stream element
+Query completed in 31405980ns, 20ns per stream element
+Query completed in 31886145ns, 20ns per stream element
+Query completed in 33372495ns, 21ns per stream element
+Query completed in 33838995ns, 21ns per stream element
+Query completed in 34448370ns, 22ns per stream element
+Query completed in 34260450ns, 21ns per stream element
+Query completed in 34291455ns, 21ns per stream element
+Query completed in 34535940ns, 22ns per stream element
+Query completed in 35434545ns, 22ns per stream element
+Query completed in 35784690ns, 22ns per stream element
+Query completed in 35983125ns, 23ns per stream element
+Query completed in 36539445ns, 23ns per stream element
+DONE, 20 threads
+I'm thread 0, with 1302083 elements!
+I'm thread 2, with 1302083 elements!
+I'm thread 3, with 1302083 elements!
+I'm thread 1, with 1302083 elements!
+I'm thread 4, with 1302083 elements!
+I'm thread 5, with 1302083 elements!
+I'm thread 6, with 1302083 elements!
+I'm thread 7, with 1302083 elements!
+I'm thread 8, with 1302083 elements!
+I'm thread 9, with 1302083 elements!
+I'm thread 10, with 1302083 elements!
+I'm thread 11, with 1302083 elements!
+I'm thread 12, with 1302083 elements!
+I'm thread 13, with 1302083 elements!
+I'm thread 14, with 1302083 elements!
+I'm thread 15, with 1302083 elements!
+I'm thread 16, with 1302083 elements!
+I'm thread 17, with 1302083 elements!
+I'm thread 18, with 1302083 elements!
+I'm thread 19, with 1302083 elements!
+I'm thread 20, with 1302083 elements!
+I'm thread 21, with 1302083 elements!
+I'm thread 22, with 1302083 elements!
+I'm thread 23, with 1302091 elements!
+Query completed in 21017730ns, 16ns per stream element
+Query completed in 21427260ns, 16ns per stream element
+Query completed in 22274925ns, 17ns per stream element
+Query completed in 23056320ns, 17ns per stream element
+Query completed in 24553140ns, 18ns per stream element
+Query completed in 24566475ns, 18ns per stream element
+Query completed in 24847920ns, 19ns per stream element
+Query completed in 24797025ns, 19ns per stream element
+Query completed in 25180125ns, 19ns per stream element
+Query completed in 25550715ns, 19ns per stream element
+Query completed in 25792470ns, 19ns per stream element
+Query completed in 25994550ns, 19ns per stream element
+Query completed in 26049090ns, 20ns per stream element
+Query completed in 26319420ns, 20ns per stream element
+Query completed in 26373420ns, 20ns per stream element
+Query completed in 27170235ns, 20ns per stream element
+Query completed in 27210045ns, 20ns per stream element
+Query completed in 27675690ns, 21ns per stream element
+Query completed in 28561785ns, 21ns per stream element
+Query completed in 28737780ns, 22ns per stream element
+Query completed in 28646850ns, 22ns per stream element
+Query completed in 30905115ns, 23ns per stream element
+Query completed in 32350425ns, 24ns per stream element
+Query completed in 34760580ns, 26ns per stream element
+DONE, 24 threads
+I'm thread 0, with 976562 elements!
+I'm thread 2, with 976562 elements!
+I'm thread 3, with 976562 elements!
+I'm thread 1, with 976562 elements!
+I'm thread 4, with 976562 elements!
+I'm thread 5, with 976562 elements!
+I'm thread 6, with 976562 elements!
+I'm thread 7, with 976562 elements!
+I'm thread 8, with 976562 elements!
+I'm thread 9, with 976562 elements!
+I'm thread 10, with 976562 elements!
+I'm thread 11, with 976562 elements!
+I'm thread 12, with 976562 elements!
+I'm thread 13, with 976562 elements!
+I'm thread 14, with 976562 elements!
+I'm thread 15, with 976562 elements!
+I'm thread 16, with 976562 elements!
+I'm thread 17, with 976562 elements!
+I'm thread 18, with 976562 elements!
+I'm thread 19, with 976562 elements!
+I'm thread 20, with 976562 elements!
+I'm thread 21, with 976562 elements!
+I'm thread 22, with 976562 elements!
+I'm thread 23, with 976562 elements!
+I'm thread 24, with 976562 elements!
+I'm thread 25, with 976562 elements!
+I'm thread 26, with 976562 elements!
+I'm thread 27, with 976562 elements!
+I'm thread 28, with 976562 elements!
+I'm thread 29, with 976562 elements!
+I'm thread 30, with 976562 elements!
+I'm thread 31, with 976578 elements!
+Query completed in 11306265ns, 11ns per stream element
+Query completed in 14235930ns, 14ns per stream element
+Query completed in 15010875ns, 15ns per stream element
+Query completed in 17560830ns, 17ns per stream element
+Query completed in 17976945ns, 18ns per stream element
+Query completed in 18373785ns, 18ns per stream element
+Query completed in 18443400ns, 18ns per stream element
+Query completed in 18700005ns, 19ns per stream element
+Query completed in 18458175ns, 18ns per stream element
+Query completed in 18641940ns, 19ns per stream element
+Query completed in 18383595ns, 18ns per stream element
+Query completed in 18511995ns, 18ns per stream element
+Query completed in 18667470ns, 19ns per stream element
+Query completed in 18521730ns, 18ns per stream element
+Query completed in 18546675ns, 18ns per stream element
+Query completed in 18544725ns, 18ns per stream element
+Query completed in 18746355ns, 19ns per stream element
+Query completed in 19288995ns, 19ns per stream element
+Query completed in 19228650ns, 19ns per stream element
+Query completed in 19442520ns, 19ns per stream element
+Query completed in 19467510ns, 19ns per stream element
+Query completed in 19632180ns, 20ns per stream element
+Query completed in 19899075ns, 20ns per stream element
+Query completed in 20211555ns, 20ns per stream element
+Query completed in 20640075ns, 21ns per stream element
+Query completed in 20886090ns, 21ns per stream element
+Query completed in 21644220ns, 22ns per stream element
+Query completed in 22447530ns, 22ns per stream element
+Query completed in 25104435ns, 25ns per stream element
+Query completed in 27349395ns, 28ns per stream element
+Query completed in 27344910ns, 28ns per stream element
+Query completed in 27322125ns, 27ns per stream element
+DONE, 32 threads
+====================================
+case 9I'm thread 0, with 70312504 elements!
+Query completed in 188386410ns, 2ns per stream element
+DONE, 1 threads
+I'm thread 0, with 35156248 elements!
+I'm thread 1, with 35156256 elements!
+Query completed in 94043460ns, 2ns per stream element
+Query completed in 94106475ns, 2ns per stream element
+DONE, 2 threads
+I'm thread 0, with 17578120 elements!
+I'm thread 2, with 17578120 elements!
+I'm thread 1, with 17578120 elements!
+I'm thread 3, with 17578144 elements!
+Query completed in 46545210ns, 2ns per stream element
+Query completed in 46676055ns, 2ns per stream element
+Query completed in 46870725ns, 2ns per stream element
+Query completed in 46888725ns, 2ns per stream element
+DONE, 4 threads
+I'm thread 0, with 8789056 elements!
+I'm thread 1, with 8789056 elements!
+I'm thread 2, with 8789056 elements!
+I'm thread 3, with 8789056 elements!
+I'm thread 4, with 8789056 elements!
+I'm thread 5, with 8789056 elements!
+I'm thread 6, with 8789056 elements!
+I'm thread 7, with 8789112 elements!
+Query completed in 22855980ns, 2ns per stream element
+Query completed in 22876455ns, 2ns per stream element
+Query completed in 23465805ns, 2ns per stream element
+Query completed in 23539320ns, 2ns per stream element
+Query completed in 23589390ns, 2ns per stream element
+Query completed in 23725635ns, 2ns per stream element
+Query completed in 23902380ns, 2ns per stream element
+Query completed in 24020505ns, 2ns per stream element
+DONE, 8 threads
+I'm thread 0, with 4394528 elements!
+I'm thread 1, with 4394528 elements!
+I'm thread 2, with 4394528 elements!
+I'm thread 3, with 4394528 elements!
+I'm thread 4, with 4394528 elements!
+I'm thread 5, with 4394528 elements!
+I'm thread 6, with 4394528 elements!
+I'm thread 7, with 4394528 elements!
+I'm thread 8, with 4394528 elements!
+I'm thread 9, with 4394528 elements!
+I'm thread 10, with 4394528 elements!
+I'm thread 11, with 4394528 elements!
+I'm thread 12, with 4394528 elements!
+I'm thread 13, with 4394528 elements!
+I'm thread 14, with 4394528 elements!
+I'm thread 15, with 4394584 elements!
+Query completed in 11474550ns, 2ns per stream element
+Query completed in 11441610ns, 2ns per stream element
+Query completed in 11794590ns, 2ns per stream element
+Query completed in 11733525ns, 2ns per stream element
+Query completed in 11854950ns, 2ns per stream element
+Query completed in 11844660ns, 2ns per stream element
+Query completed in 11823810ns, 2ns per stream element
+Query completed in 11796210ns, 2ns per stream element
+Query completed in 11777985ns, 2ns per stream element
+Query completed in 11789535ns, 2ns per stream element
+Query completed in 11795325ns, 2ns per stream element
+Query completed in 11846190ns, 2ns per stream element
+Query completed in 12019185ns, 2ns per stream element
+Query completed in 11872545ns, 2ns per stream element
+Query completed in 12029685ns, 2ns per stream element
+Query completed in 12012675ns, 2ns per stream element
+DONE, 16 threads
+I'm thread 0, with 3515624 elements!
+I'm thread 2, with 3515624 elements!
+I'm thread 1, with 3515624 elements!
+I'm thread 3, with 3515624 elements!
+I'm thread 4, with 3515624 elements!
+I'm thread 5, with 3515624 elements!
+I'm thread 6, with 3515624 elements!
+I'm thread 7, with 3515624 elements!
+I'm thread 8, with 3515624 elements!
+I'm thread 9, with 3515624 elements!
+I'm thread 10, with 3515624 elements!
+I'm thread 11, with 3515624 elements!
+I'm thread 12, with 3515624 elements!
+I'm thread 13, with 3515624 elements!
+I'm thread 14, with 3515624 elements!
+I'm thread 15, with 3515624 elements!
+I'm thread 16, with 3515624 elements!
+I'm thread 17, with 3515624 elements!
+I'm thread 18, with 3515624 elements!
+I'm thread 19, with 3515648 elements!
+Query completed in 9176970ns, 2ns per stream element
+Query completed in 9287670ns, 2ns per stream element
+Query completed in 9367725ns, 2ns per stream element
+Query completed in 9318435ns, 2ns per stream element
+Query completed in 9528285ns, 2ns per stream element
+Query completed in 9591120ns, 2ns per stream element
+Query completed in 9489210ns, 2ns per stream element
+Query completed in 9492990ns, 2ns per stream element
+Query completed in 9735840ns, 2ns per stream element
+Query completed in 9537075ns, 2ns per stream element
+Query completed in 9664980ns, 2ns per stream element
+Query completed in 9655500ns, 2ns per stream element
+Query completed in 9951525ns, 2ns per stream element
+Query completed in 10041885ns, 2ns per stream element
+Query completed in 10052055ns, 2ns per stream element
+Query completed in 10025295ns, 2ns per stream element
+Query completed in 10037805ns, 2ns per stream element
+Query completed in 10098465ns, 2ns per stream element
+Query completed in 9999630ns, 2ns per stream element
+Query completed in 10177395ns, 2ns per stream element
+DONE, 20 threads
+I'm thread 0, with 2929680 elements!
+I'm thread 2, with 2929680 elements!
+I'm thread 1, with 2929680 elements!
+I'm thread 3, with 2929680 elements!
+I'm thread 4, with 2929680 elements!
+I'm thread 5, with 2929680 elements!
+I'm thread 6, with 2929680 elements!
+I'm thread 7, with 2929680 elements!
+I'm thread 8, with 2929680 elements!
+I'm thread 9, with 2929680 elements!
+I'm thread 10, with 2929680 elements!
+I'm thread 11, with 2929680 elements!
+I'm thread 12, with 2929680 elements!
+I'm thread 13, with 2929680 elements!
+I'm thread 14, with 2929680 elements!
+I'm thread 15, with 2929680 elements!
+I'm thread 16, with 2929680 elements!
+I'm thread 17, with 2929680 elements!
+I'm thread 18, with 2929680 elements!
+I'm thread 19, with 2929680 elements!
+I'm thread 20, with 2929680 elements!
+I'm thread 21, with 2929680 elements!
+I'm thread 22, with 2929680 elements!
+I'm thread 23, with 2929864 elements!
+Query completed in 7681350ns, 2ns per stream element
+Query completed in 7695210ns, 2ns per stream element
+Query completed in 7669455ns, 2ns per stream element
+Query completed in 7873155ns, 2ns per stream element
+Query completed in 7947510ns, 2ns per stream element
+Query completed in 7988055ns, 2ns per stream element
+Query completed in 7798920ns, 2ns per stream element
+Query completed in 7913055ns, 2ns per stream element
+Query completed in 7886490ns, 2ns per stream element
+Query completed in 7945155ns, 2ns per stream element
+Query completed in 7965420ns, 2ns per stream element
+Query completed in 7841910ns, 2ns per stream element
+Query completed in 8103570ns, 2ns per stream element
+Query completed in 7944480ns, 2ns per stream element
+Query completed in 8005200ns, 2ns per stream element
+Query completed in 8169375ns, 2ns per stream element
+Query completed in 7969005ns, 2ns per stream element
+Query completed in 8234895ns, 2ns per stream element
+Query completed in 8032440ns, 2ns per stream element
+Query completed in 7997610ns, 2ns per stream element
+Query completed in 13811880ns, 4ns per stream element
+Query completed in 13830915ns, 4ns per stream element
+Query completed in 13983240ns, 4ns per stream element
+Query completed in 13980330ns, 4ns per stream element
+DONE, 24 threads
+I'm thread 0, with 2197264 elements!
+I'm thread 2, with 2197264 elements!
+I'm thread 1, with 2197264 elements!
+I'm thread 3, with 2197264 elements!
+I'm thread 4, with 2197264 elements!
+I'm thread 5, with 2197264 elements!
+I'm thread 6, with 2197264 elements!
+I'm thread 7, with 2197264 elements!
+I'm thread 8, with 2197264 elements!
+I'm thread 9, with 2197264 elements!
+I'm thread 10, with 2197264 elements!
+I'm thread 11, with 2197264 elements!
+I'm thread 12, with 2197264 elements!
+I'm thread 13, with 2197264 elements!
+I'm thread 14, with 2197264 elements!
+I'm thread 15, with 2197264 elements!
+I'm thread 16, with 2197264 elements!
+I'm thread 17, with 2197264 elements!
+I'm thread 18, with 2197264 elements!
+I'm thread 19, with 2197264 elements!
+I'm thread 20, with 2197264 elements!
+I'm thread 21, with 2197264 elements!
+I'm thread 22, with 2197264 elements!
+I'm thread 23, with 2197264 elements!
+I'm thread 24, with 2197264 elements!
+I'm thread 25, with 2197264 elements!
+I'm thread 26, with 2197264 elements!
+I'm thread 27, with 2197264 elements!
+I'm thread 28, with 2197264 elements!
+I'm thread 29, with 2197264 elements!
+I'm thread 30, with 2197264 elements!
+I'm thread 31, with 2197320 elements!
+Query completed in 5872485ns, 2ns per stream element
+Query completed in 5848275ns, 2ns per stream element
+Query completed in 5837595ns, 2ns per stream element
+Query completed in 5815200ns, 2ns per stream element
+Query completed in 5893125ns, 2ns per stream element
+Query completed in 6137490ns, 2ns per stream element
+Query completed in 6055605ns, 2ns per stream element
+Query completed in 6242835ns, 2ns per stream element
+Query completed in 6260070ns, 2ns per stream element
+Query completed in 5842215ns, 2ns per stream element
+Query completed in 6281865ns, 2ns per stream element
+Query completed in 6007290ns, 2ns per stream element
+Query completed in 6319440ns, 2ns per stream element
+Query completed in 6230145ns, 2ns per stream element
+Query completed in 6217770ns, 2ns per stream element
+Query completed in 6361950ns, 2ns per stream element
+Query completed in 6237075ns, 2ns per stream element
+Query completed in 6311280ns, 2ns per stream element
+Query completed in 6382875ns, 2ns per stream element
+Query completed in 6240285ns, 2ns per stream element
+Query completed in 6328170ns, 2ns per stream element
+Query completed in 6333600ns, 2ns per stream element
+Query completed in 10465575ns, 4ns per stream element
+Query completed in 10565505ns, 4ns per stream element
+Query completed in 10655820ns, 4ns per stream element
+Query completed in 10614405ns, 4ns per stream element
+Query completed in 10440360ns, 4ns per stream element
+Query completed in 10662210ns, 4ns per stream element
+Query completed in 10437540ns, 4ns per stream element
+Query completed in 10458240ns, 4ns per stream element
+Query completed in 10584555ns, 4ns per stream element
+Query completed in 10624170ns, 4ns per stream element
+DONE, 32 threads
+====================================
+case 12I'm thread 0, with 93750000 elements!
+Query completed in 408242070ns, 4ns per stream element
+DONE, 1 threads
+I'm thread 0, with 46875000 elements!
+I'm thread 1, with 46875000 elements!
+Query completed in 204097215ns, 4ns per stream element
+Query completed in 204305100ns, 4ns per stream element
+DONE, 2 threads
+I'm thread 0, with 23437500 elements!
+I'm thread 1, with 23437500 elements!
+I'm thread 2, with 23437500 elements!
+I'm thread 3, with 23437500 elements!
+Query completed in 101322480ns, 4ns per stream element
+Query completed in 101539905ns, 4ns per stream element
+Query completed in 102002040ns, 4ns per stream element
+Query completed in 103021920ns, 4ns per stream element
+DONE, 4 threads
+I'm thread 0, with 11718750 elements!
+I'm thread 1, with 11718750 elements!
+I'm thread 3, with 11718750 elements!
+I'm thread 2, with 11718750 elements!
+I'm thread 4, with 11718750 elements!
+I'm thread 5, with 11718750 elements!
+I'm thread 6, with 11718750 elements!
+I'm thread 7, with 11718750 elements!
+Query completed in 51126060ns, 4ns per stream element
+Query completed in 51168720ns, 4ns per stream element
+Query completed in 51271740ns, 4ns per stream element
+Query completed in 51293610ns, 4ns per stream element
+Query completed in 51331965ns, 4ns per stream element
+Query completed in 51402225ns, 4ns per stream element
+Query completed in 51575595ns, 4ns per stream element
+Query completed in 51614250ns, 4ns per stream element
+DONE, 8 threads
+I'm thread 0, with 5859375 elements!
+I'm thread 2, with 5859375 elements!
+I'm thread 3, with 5859375 elements!
+I'm thread 1, with 5859375 elements!
+I'm thread 4, with 5859375 elements!
+I'm thread 5, with 5859375 elements!
+I'm thread 6, with 5859375 elements!
+I'm thread 7, with 5859375 elements!
+I'm thread 8, with 5859375 elements!
+I'm thread 9, with 5859375 elements!
+I'm thread 10, with 5859375 elements!
+I'm thread 11, with 5859375 elements!
+I'm thread 12, with 5859375 elements!
+I'm thread 13, with 5859375 elements!
+I'm thread 14, with 5859375 elements!
+I'm thread 15, with 5859375 elements!
+Query completed in 25545315ns, 4ns per stream element
+Query completed in 25488660ns, 4ns per stream element
+Query completed in 25572645ns, 4ns per stream element
+Query completed in 25529175ns, 4ns per stream element
+Query completed in 25577070ns, 4ns per stream element
+Query completed in 25563525ns, 4ns per stream element
+Query completed in 25614915ns, 4ns per stream element
+Query completed in 25502295ns, 4ns per stream element
+Query completed in 25536960ns, 4ns per stream element
+Query completed in 25632420ns, 4ns per stream element
+Query completed in 25645050ns, 4ns per stream element
+Query completed in 25634445ns, 4ns per stream element
+Query completed in 25938045ns, 4ns per stream element
+Query completed in 26115060ns, 4ns per stream element
+Query completed in 27898650ns, 4ns per stream element
+Query completed in 27923895ns, 4ns per stream element
+DONE, 16 threads
+I'm thread 0, with 4687500 elements!
+I'm thread 2, with 4687500 elements!
+I'm thread 1, with 4687500 elements!
+I'm thread 3, with 4687500 elements!
+I'm thread 4, with 4687500 elements!
+I'm thread 5, with 4687500 elements!
+I'm thread 6, with 4687500 elements!
+I'm thread 7, with 4687500 elements!
+I'm thread 8, with 4687500 elements!
+I'm thread 9, with 4687500 elements!
+I'm thread 10, with 4687500 elements!
+I'm thread 11, with 4687500 elements!
+I'm thread 12, with 4687500 elements!
+I'm thread 13, with 4687500 elements!
+I'm thread 14, with 4687500 elements!
+I'm thread 15, with 4687500 elements!
+I'm thread 16, with 4687500 elements!
+I'm thread 17, with 4687500 elements!
+I'm thread 18, with 4687500 elements!
+I'm thread 19, with 4687500 elements!
+Query completed in 20302800ns, 4ns per stream element
+Query completed in 20409405ns, 4ns per stream element
+Query completed in 20475855ns, 4ns per stream element
+Query completed in 20452710ns, 4ns per stream element
+Query completed in 20501190ns, 4ns per stream element
+Query completed in 20428950ns, 4ns per stream element
+Query completed in 20419260ns, 4ns per stream element
+Query completed in 20377560ns, 4ns per stream element
+Query completed in 20496225ns, 4ns per stream element
+Query completed in 20393475ns, 4ns per stream element
+Query completed in 20484120ns, 4ns per stream element
+Query completed in 20504580ns, 4ns per stream element
+Query completed in 20486400ns, 4ns per stream element
+Query completed in 20757150ns, 4ns per stream element
+Query completed in 21166335ns, 4ns per stream element
+Query completed in 21895485ns, 4ns per stream element
+Query completed in 22466790ns, 4ns per stream element
+Query completed in 22837320ns, 4ns per stream element
+Query completed in 38491395ns, 8ns per stream element
+Query completed in 38514465ns, 8ns per stream element
+DONE, 20 threads
+I'm thread 0, with 3906249 elements!
+I'm thread 2, with 3906249 elements!
+I'm thread 3, with 3906249 elements!
+I'm thread 1, with 3906249 elements!
+I'm thread 4, with 3906249 elements!
+I'm thread 5, with 3906249 elements!
+I'm thread 6, with 3906249 elements!
+I'm thread 7, with 3906249 elements!
+I'm thread 8, with 3906249 elements!
+I'm thread 9, with 3906249 elements!
+I'm thread 10, with 3906249 elements!
+I'm thread 11, with 3906249 elements!
+I'm thread 12, with 3906249 elements!
+I'm thread 13, with 3906249 elements!
+I'm thread 14, with 3906249 elements!
+I'm thread 15, with 3906249 elements!
+I'm thread 16, with 3906249 elements!
+I'm thread 17, with 3906249 elements!
+I'm thread 18, with 3906249 elements!
+I'm thread 19, with 3906249 elements!
+I'm thread 20, with 3906249 elements!
+I'm thread 21, with 3906249 elements!
+I'm thread 22, with 3906249 elements!
+I'm thread 23, with 3906273 elements!
+Query completed in 16998570ns, 4ns per stream element
+Query completed in 17053485ns, 4ns per stream element
+Query completed in 17061420ns, 4ns per stream element
+Query completed in 16985730ns, 4ns per stream element
+Query completed in 17107320ns, 4ns per stream element
+Query completed in 17133075ns, 4ns per stream element
+Query completed in 17123130ns, 4ns per stream element
+Query completed in 17268495ns, 4ns per stream element
+Query completed in 17116020ns, 4ns per stream element
+Query completed in 17107935ns, 4ns per stream element
+Query completed in 17075790ns, 4ns per stream element
+Query completed in 17083815ns, 4ns per stream element
+Query completed in 17081850ns, 4ns per stream element
+Query completed in 17097525ns, 4ns per stream element
+Query completed in 17027970ns, 4ns per stream element
+Query completed in 17078715ns, 4ns per stream element
+Query completed in 17053650ns, 4ns per stream element
+Query completed in 17181435ns, 4ns per stream element
+Query completed in 17087670ns, 4ns per stream element
+Query completed in 17483835ns, 4ns per stream element
+Query completed in 17479080ns, 4ns per stream element
+Query completed in 17906490ns, 4ns per stream element
+Query completed in 31972470ns, 8ns per stream element
+Query completed in 31988535ns, 8ns per stream element
+DONE, 24 threads
+I'm thread 0, with 2929686 elements!
+I'm thread 2, with 2929686 elements!
+I'm thread 1, with 2929686 elements!
+I'm thread 3, with 2929686 elements!
+I'm thread 4, with 2929686 elements!
+I'm thread 5, with 2929686 elements!
+I'm thread 6, with 2929686 elements!
+I'm thread 7, with 2929686 elements!
+I'm thread 8, with 2929686 elements!
+I'm thread 9, with 2929686 elements!
+I'm thread 10, with 2929686 elements!
+I'm thread 11, with 2929686 elements!
+I'm thread 12, with 2929686 elements!
+I'm thread 13, with 2929686 elements!
+I'm thread 14, with 2929686 elements!
+I'm thread 15, with 2929686 elements!
+I'm thread 16, with 2929686 elements!
+I'm thread 17, with 2929686 elements!
+I'm thread 18, with 2929686 elements!
+I'm thread 19, with 2929686 elements!
+I'm thread 20, with 2929686 elements!
+I'm thread 21, with 2929686 elements!
+I'm thread 22, with 2929686 elements!
+I'm thread 23, with 2929686 elements!
+I'm thread 24, with 2929686 elements!
+I'm thread 25, with 2929686 elements!
+I'm thread 26, with 2929686 elements!
+I'm thread 27, with 2929686 elements!
+I'm thread 28, with 2929686 elements!
+I'm thread 29, with 2929686 elements!
+I'm thread 30, with 2929686 elements!
+I'm thread 31, with 2929734 elements!
+Query completed in 12798540ns, 4ns per stream element
+Query completed in 12781125ns, 4ns per stream element
+Query completed in 12642150ns, 4ns per stream element
+Query completed in 12821310ns, 4ns per stream element
+Query completed in 12664620ns, 4ns per stream element
+Query completed in 12791295ns, 4ns per stream element
+Query completed in 12830010ns, 4ns per stream element
+Query completed in 12776730ns, 4ns per stream element
+Query completed in 12863010ns, 4ns per stream element
+Query completed in 12771360ns, 4ns per stream element
+Query completed in 12734520ns, 4ns per stream element
+Query completed in 12901185ns, 4ns per stream element
+Query completed in 12829620ns, 4ns per stream element
+Query completed in 12802500ns, 4ns per stream element
+Query completed in 12840615ns, 4ns per stream element
+Query completed in 12860985ns, 4ns per stream element
+Query completed in 12850005ns, 4ns per stream element
+Query completed in 12899655ns, 4ns per stream element
+Query completed in 23794845ns, 8ns per stream element
+Query completed in 23848410ns, 8ns per stream element
+Query completed in 23840595ns, 8ns per stream element
+Query completed in 23918805ns, 8ns per stream element
+Query completed in 24127275ns, 8ns per stream element
+Query completed in 23873475ns, 8ns per stream element
+Query completed in 24106620ns, 8ns per stream element
+Query completed in 23856525ns, 8ns per stream element
+Query completed in 23813475ns, 8ns per stream element
+Query completed in 24051060ns, 8ns per stream element
+Query completed in 24015840ns, 8ns per stream element
+Query completed in 24053910ns, 8ns per stream element
+Query completed in 23985330ns, 8ns per stream element
+Query completed in 23935545ns, 8ns per stream element
+DONE, 32 threads
+====================================
+case 16====================================
+case 32

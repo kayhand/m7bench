@@ -2,23 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vis.h>
 #include <time.h>
+#include <vis.h>
+#include <sys/time.h>
 #include "SIMD_buffer.c"
+#include "util.h"
 
 //Should be 8, but it's not<
-#define FBUFFER_SIZE 2
-#define DISPLACEMENT 32
+#define FBUFFER_SIZE 4
+
+#define DISPLACEMENT 16
 
 #define error(a) do{ \
 	perror(a);\
 	exit(EXIT_FAILURE);\
 }while(0);
 
-static __inline__ unsigned long long tick(void)
-{
-	return clock();
-}
+int decode_table[256];
 
 /*
  *Data: 8 bits
@@ -28,78 +28,67 @@ static __inline__ unsigned long long tick(void)
  *
  */
 
-void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
+void count_query(uint64_t * stream, unsigned long long number_of_buffers, int predicate)
 {
 
-	/* Compare lt, with no pointers! */
 
-	int i, k;
-	uint64_t aux = 0, result = 0, v2 = 0;
-	unsigned long long constant;
-	long long begin, end;
+	uint64_t p64;
+	int i, j, aux;
+	double d_predicate, d_original;
+	unsigned long long begin, end, result=0;
+	hrtime_t h_begin, h_end;
 
-	for (i = 0; i < FBUFFER_SIZE; i++) {
-		aux <<= DISPLACEMENT;
-		//Just in case, a hard limit on the space taken by the predicated
-		//in the mask
-		aux |= (predicate & 0xFFFFFFFF);
-	}
+	/***************
+	 * AAAAAAAA AAAAAAAA AAAAAAAA AAAAAAAA BBBBBBBB BBBBBBBB BBBBBBBB BBBBBBBB
+	 * 0		1	2	3	4	 5	  6		7
+	 *
+	 */
+	p64 = predicate & 0xffffffff;
+	p64 <<= 32;
+	p64 |= predicate;
+	d_predicate = vis_ll_to_double(p64);
 
-	constant = aux;
-
-	aux = 0;
-
+	h_begin = gethrtime();
 	begin = tick();
+	for(i=0;i<number_of_buffers;i++){
+		d_original = vis_ll_to_double(stream[i]);
 
-	for (i = 0; i < number_of_buffers; i++) {
+		aux = vis_fcmpgt32(d_original, d_predicate);
+		printf("aux = %d => %d\n", aux, decode_table[aux]);
+		result += decode_table[aux];
 
-		//This is the MARK
-		aux =
-		    __vis_fcmple32(vis_ll_to_double((*stream)[i]),
-				   vis_ll_to_double(constant));
-
-		//Should aux be an immediate value:
-		while (aux > 0) {
-			result += aux % 2;
-			aux >>= 1;
-		}
 	}
-
 	end = tick();
+	h_end = gethrtime();
 
-	printf
-	    ("In the end, %d values were found to be smaller than %d in approx %d clocks!\n",
-	     result, predicate, end - begin);
+printf("result = %llu\n", result);
+	printf("Query completed in %lluns, %lluns per buffer, %lluticks, %lluticks per buffer\n",
+			h_end - h_begin,
+			(h_end - h_begin) / number_of_buffers);
+
 }
 
-int load_data(char *fname, int num_of_bits, int num_of_elements,
-	      uint64_t ** stream)
+
+int main(int argc, char ** argv)
 {
 
-	return 0;
-}
+	uint64_t *t = NULL;
+	unsigned long long int nb_elements;
+	int predicate;
 
-int main()
-{
+	if(argc < 3){
+		printf("Usage: %s filename predicate\n", argv[0]);
+		exit(EXIT_FAILURE);
 
-	uint64_t *tab;
-	//Only FBUFFER_SIZE values will be used
-	int i, vector[8] = { 32, 12 };
-	int j;
+	}
+	predicate = atoi(argv[2]);
 
-	if (posix_memalign((void **)&tab, 8, sizeof(uint64_t) * 100))
-		error("memalign tab");
+	fill_decode_table(decode_table);
+	load_data(argv[1], 32, &nb_elements, &t);
+	count_query(t, nb_elements, predicate);
 
-	for (j = 0; j < 100; j++)
-		for (i = 0; i < FBUFFER_SIZE; i++) {
-			tab[j] <<= DISPLACEMENT;
-			tab[j] |= vector[i];
-		}
 
-	count_query((uint64_t **) & tab, 100, 15);
-
-	printf("I was expecting one positive result per query\n");
-
-	free(tab);
+	free(t);
 	return EXIT_SUCCESS;
 }
+

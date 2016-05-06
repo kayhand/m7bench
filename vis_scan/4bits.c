@@ -5,6 +5,7 @@
 #include <time.h>
 #include <vis.h>
 #include "SIMD_buffer.c"
+#include "util.h"
 
 #define FBUFFER_SIZE 16
 #define DISPLACEMENT 4
@@ -14,15 +15,9 @@
 	exit(EXIT_FAILURE);\
 }while(0);
 
-static __inline__ unsigned long long tick(void)
-{
-	/*
-	   unsigned hi, lo;
-	   __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
-	   return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
-	 */
-	return clock();
-}
+
+int decode_table[256];
+
 
 /*
  * Since the smallest data size a VIS operation can work with is a byte,
@@ -30,107 +25,110 @@ static __inline__ unsigned long long tick(void)
  * operation. A simple shift and mask of the unecessary data does it all.
  */
 
-void decode_4_to_8(unsigned long long *src, unsigned long long *dst)
+void decode_4_to_8(uint64_t *src, uint64_t *dst)
 {
-	unsigned long long mask = 0x0F0F0F0F0F0F0F0F;
+	uint64_t mask = 0x0F0F0F0F0F0F0F0F;
 
 	*dst = *src >> 4;
 	*dst &= mask;
 	*src &= mask;
 }
 
-void count_query(uint64_t ** stream, int number_of_buffers, int predicate)
+void count_query(uint64_t * stream, int number_of_buffers, int predicate)
 {
 
 	/* Compare lt, with no pointers! */
 
-	int i, k;
-	uint64_t aux = 0, result = 0, v2 = 0;
-	unsigned long long constant, buff[2];
-	long long begin, end;
+	double values[2], d_original[2];
+	double zero = 0, d_predicate;
+	uint64_t original_values[2], p64;
+	int i, j, aux;
+	hrtime_t h_begin, h_end;
+	unsigned long long int result = 0;
+	unsigned int bmasks[4] = {
+		0xfff0fff1,
+		0xfff2fff3,
+		0xfff4fff5,
+		0xfff6fff7,
+	};
 
-	for (i = 0; i < 8; i++) {
-		aux <<= 8;
-		//Just in case, a hard limit on the space taken by the predicated
-		//in the mask
-		aux |= (predicate & 0x0F);
-	}
+	p64 = predicate & 0x0f;
+	p64 <<= 32;
+	p64 |= predicate;
+	d_predicate = vis_ll_to_double(p64);
 
-	constant = aux;
 
-	print_buffer(aux);
 
-	aux = 0;
+	/* *
+	 * Stream Element:
+	 * AAAABBBB CCCCDDDD EEEEFFFF GGGGHHHH IIIIJJJJ KKKKLLLL MMMMNNNN OOOOPPPP
+	 *
+	 * After decode_4_to_8
+	 *
+	 * src:
+	 * 0000BBBB 0000DDDD 0000FFFF 0000HHHH 0000JJJJ 0000LLLL 0000NNNN 0000PPPP
+	 * dst
+	 * 0000AAAA 0000CCCC 0000EEEE 0000GGGG 0000IIII 0000KKKK 0000MMMM 0000OOOO
+	 * 0		1	2	3	4	5	 6	  7
+	 *
+	 * SO each mask will be applied twice, once on dest, then on src.
+	 *
+	 * To specify the bmask, vis_write_bmask(MASK, 0);
+	 *
+	 */
 
-	begin = tick();
+	h_begin = gethrtime();
+	for(i=0;i<number_of_buffers;i++){
+		original_values[0] = stream[i];
+		decode_4_to_8(original_values, original_values + 1);
+		d_original[0] = vis_ll_to_double(original_values[0]);
+		d_original[1] = vis_ll_to_double(original_values[1]);
 
-	for (i = 0; i < number_of_buffers; i++) {
-		buff[0] = (*stream)[i];
+		for(j=0; j<4; j++){
+			//Set the mask for the following Byte shuffles
+			__vis_write_bmask(bmasks[j], 0);
+			values[0] = __vis_bshuffle(d_original[0], zero);
+			values[1] = __vis_bshuffle(d_original[1], zero);
 
-		decode_4_to_8(&(buff[0]), &buff[1]);
+			aux = vis_fcmpgt32(values[0], d_predicate);
+			result += decode_table[aux];
 
-		for (k = 0; k < 2; k++) {
-
-			//This is the MARK
-			aux = vis_fucmplt8(vis_ll_to_double(buff[k]),
-					   vis_ll_to_double(constant));
-
-			//Should aux be an immediate value:
-			while (aux > 0) {
-				result += aux % 2;
-				aux >>= 1;
-			}
-		}
-	}
-
-	end = tick();
-
-	printf
-	    ("In the end, %d values were found to be smaller than %d in approx %d clocks!\n",
-	     result, predicate, end - begin);
-}
-
-int load_data(char *fname, int num_of_bits, int num_of_elements,
-	      uint64_t ** stream)
-{
-
-	return 0;
-}
-
-int main()
-{
-
-	uint64_t *tab;
-	//Only FBUFFER_SIZE values will be used
-	int i, j=1;
-	int vector[16] =
-	    { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-
-	if (posix_memalign((void **)&tab, 8, sizeof(uint64_t) * 100))
-		error("memalign tab");
-
-	for (j = 0; j < 100; j++)
-		for (i = 0; i < FBUFFER_SIZE; i++) {
-			tab[j] <<= DISPLACEMENT;
-			tab[j] |= ( vector[i] & 0x0F);
+			aux = vis_fcmpgt32(values[1], d_predicate);
+			result += decode_table[aux];
 		}
 
-	count_query((uint64_t **) & tab, 100, 5);
-	
-
-	unsigned long long a, b;
-	a = tab[0];
-	printf("Before decoding: \n");
-	print_buffer(a);
-	decode_4_to_8(&a, &b);
-	printf("-\n", tab[0]);
-	print_buffer(a);
-	print_buffer(b);
 
 
 
-	printf("Expecting: five values per vector.\n");
+	}
+	h_end = gethrtime();
 
-	free(tab);
+	printf("Query completed in %lluns, %lluns per stream element\n",
+			h_end - h_begin,
+			(h_end - h_begin) / number_of_buffers);
+}
+
+
+
+int main(int argc, char ** argv)
+{
+	uint64_t *t = NULL;
+	unsigned long long int nb_elements;
+	int  predicate;
+
+	if(argc < 3){
+		printf("Usage: %s filename predicate\n", argv[0]);
+		exit(EXIT_FAILURE);
+
+	}
+	predicate = atoi(argv[2]);
+
+	fill_decode_table(decode_table);
+
+	load_data(argv[1], 4, &nb_elements, &t);
+	count_query(t, nb_elements, predicate);
+
+
+	free(t);
 	return EXIT_SUCCESS;
 }
