@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -141,11 +142,12 @@ int load_data(char *fname, int codes_per_segment, query_params *params){
 	return(0);
 }
 
-void count_query(uint64_t *stream, uint64_t *bit_vector, int num_of_bits, int numberOfSegments, int numberOfElements, int predicate){
+void count_query(uint64_t *stream, int start, int end, uint64_t *bit_vector, int num_of_bits, int numberOfSegments, int numberOfElements, int predicate){
 	uint64_t upper_bound = (0 << num_of_bits) | predicate; 
 	uint64_t mask = (0 << num_of_bits) | (uint64_t) (pow(2, num_of_bits) - 1);
 	
-	for(int i = 0; i < WORD_SIZE/(num_of_bits + 1) - 1; i++){
+	int i, j;
+	for(i = 0; i < WORD_SIZE/(num_of_bits + 1) - 1; i++){
 		upper_bound |= (upper_bound << (num_of_bits + 1));
 		mask |= (mask << (num_of_bits + 1));
 	}
@@ -156,8 +158,8 @@ void count_query(uint64_t *stream, uint64_t *bit_vector, int num_of_bits, int nu
 	uint64_t local_res = 0;
 	//long long res;
 	//res = tick();
-	for(int i = 0; i < numberOfSegments; i++){
-		for(int j = 0; j < total_codes; j++){
+	for(i = start; i < end; i++){
+		for(j = 0; j < total_codes; j++){
 			cur_result = stream[i * total_codes + j];
 			cur_result = cur_result ^ mask;
 			cur_result += upper_bound;
@@ -169,7 +171,6 @@ void count_query(uint64_t *stream, uint64_t *bit_vector, int num_of_bits, int nu
 		bit_vector[i] = local_res;
 		local_res = 0;
 	}
-
 	//printf("Count: %d\n", count);
 	//int remainder = numberOfElements - (numberOfSegments - 1) * (numberOfElements / (numberOfSegments - 1));
 	//printResultVector(global_res, numberOfSegments, WORD_SIZE - (num_of_bits + 1) * (WORD_SIZE / (num_of_bits + 1)), remainder);
@@ -201,6 +202,7 @@ int main(int argc, char * argv[]){
 	int num_of_threads = atoi(argv[5]);
 	pthread_t threads[num_of_threads];
 	assignThreadParams(params);
+	params->num_of_threads = num_of_threads;
 
 	pthread_mutex_init(&start_mutex, NULL);
 	pthread_cond_init(&start_cond, NULL);
@@ -225,7 +227,8 @@ int main(int argc, char * argv[]){
 	joinThreads(threads, num_of_threads);
 
 	res = tick() - res;
-	printf("It took %lld cycles! in total and \n%lf cycles for each code. \n\n", res, res  / (num_of_elements * 100.0));
+	printf("It took %lld cycles! in total and \n%lf cycles for each code. \n\n", res, res  / (num_of_elements * 5000.0));
+	printf("In a single cycle %lf codes were processed. \n\n", num_of_elements / (res  / 1000.0) );
 
 	pthread_attr_destroy(&attr);
 	pthread_mutex_destroy(&start_mutex);

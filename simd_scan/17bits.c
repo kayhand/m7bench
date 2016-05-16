@@ -1,318 +1,261 @@
-#include <immintrin.h>
-#include <inttypes.h>
-#include <malloc.h>
-#include <math.h>
-#include <mmintrin.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <immintrin.h>
+#include <x86intrin.h>    
+#include <tmmintrin.h>
 #include <unistd.h>
-#include <x86intrin.h>
+#include <stdint.h>
+#include <malloc.h>
+#include <string.h>
+#include <inttypes.h>
 
-int predicate_global;
+#include "../util/time.h"
 
-static __inline__ unsigned long long tick(void)
+void print128_num(__m128i var)
 {
-	unsigned hi, lo;
-	__asm__ __volatile__("rdtsc":"=a"(lo), "=d"(hi));
-	return ((unsigned long long)lo) | (((unsigned long long)hi) << 32);
+    uint8_t *val_8 = (uint8_t*) &var;
+    printf("Numerical (8 bits): %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n",
+           val_8[0], val_8[1], val_8[2], val_8[3], val_8[4], val_8[5], val_8[6], val_8[7],
+           val_8[8], val_8[9], val_8[10], val_8[11], val_8[12], val_8[13], val_8[14], val_8[15]);
+
+    uint16_t *val = (uint16_t*) &var;
+    printf("Numerical (16 bits): %u %u %u %u %u %u %u %u\n",
+           val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7]);
+
+
+//    uint32_t *val_32 = (uint32_t*) &var;
+  //  printf("Numerical (32 bits): %i %i %i %i\n\n",
+    //       val_32[0], val_32[1], val_32[2], val_32[3]);
 }
 
-void print128_num(__m128i var, int binary)
-{
-	int8_t *val = (int8_t *) & var;
-	int i,j;
-	char buff[20] = "";
-	
-	if(!binary){
-	printf(" %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n",
-	       val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7],
-	       val[8], val[9], val[10], val[11], val[12], val[13], val[14],
-	       val[15]
-	    );
-	}else{
 
-	for(i=0;i<16;i++){
-	//for(i=15;i>=0;i--){
-		for(j=0;j<8;j++){
-			if(val[i]&1)
-				buff[j] = 49;
-			else
-				buff[j] = 48;
-			val[i] >>= 1;
-		}
-		buff[8] = '\0';
-		printf("%s ", buff);
-	}
-	printf("\n");
-	}
-}
 
-int load_data_17bits(FILE * f, int *nb_values, __m128i ** st)
-{
+void count_query(uint64_t **stream, int numberOfElements, int predicate){
+	__m128i mask_register, mask_register2, mask_register3, mask_register4; 
+	__m128i mask_register5, mask_register6, mask_register7, mask_register8; 
+	__m128i clean_register;
+
+	unsigned char mask[16];
+	memset(mask, 0x80, sizeof(mask));
+	mask[0] = 0x00;mask[1] = 0x01;mask[2] = 0x02;
+	mask[4] = 0x02;mask[5] = 0x03;mask[6] = 0x04;
+	mask[8] = 0x04;mask[9] = 0x05;mask[10] = 0x06;
+	mask[12] = 0x06;mask[13] = 0x07;mask[14] = 0x08;
+	mask_register = _mm_loadu_si128((__m128i *)mask); 
+
+	memset(mask, 0x80, sizeof(mask));
+	mask[0] = 0x08;mask[1] = 0x09;mask[2] = 0x0A;
+	mask[4] = 0x0A;mask[5] = 0x0B;mask[6] = 0x0C;
+	mask[8] = 0x0C;mask[9] = 0x0D;mask[10] = 0x0E;
+	mask_register2 = _mm_loadu_si128((__m128i *)mask); 
+
+	int clean_val = 0x1FFFF;
+	//				[3]	[2]	[1]	[0]
+	clean_register = _mm_set_epi32(clean_val << 3, clean_val << 2, clean_val << 1, clean_val);
+	__m128i clean_register2 = _mm_set_epi32(0, clean_val << 6, clean_val << 5, clean_val << 4);
+	//__m128i lower_bound = _mm_set_epi32(16384, 1024, 16384, 1024);
+	__m128i upper_bound = _mm_set_epi32(predicate << 3, predicate << 2, predicate << 1, predicate);
+	__m128i upper_bound2 = _mm_set_epi32(0, predicate << 6, predicate << 5, predicate << 4);
+
+	__m128i* input; 
+	unsigned int cur_res;
+
+	__m128i old_reg, cur_reg, aligned_reg;
+	int elements_read = 0;
 	int count = 0;
 
-	int nb_of_elements = 0, n = 0;
-	int nb_of_values = 0;
-	int N = 0;
-	int value;
-	unsigned __int128 aux;
-	__m128i *stream;
-
-	while (!feof(f)) {
-		if (fgetc(f) == '\n')
-			nb_of_values++;
-	}
-	rewind(f);
-	*nb_values = nb_of_values;
-
-	N = nb_of_elements = ceil(nb_of_values * 17.0 / 128);
-
-	stream = malloc(sizeof(__m128i) * nb_of_elements);
-
-	memset(stream, 0, sizeof(__m128i) * nb_of_elements);
-	//N points to the last element of stream,
-	//then goes backwards to fill in the data
-	N--;
-
-	if (stream == NULL) {
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
-
-	n = 128;
-	aux = 0;
-	*st = &(stream[N]);
-			printf("N = %d\n", N);
-			printf("nbValues %d\n", nb_of_values);
-	while (!feof(f)) {
-
-		if(fscanf(f, "%d", &value) == EOF ){
-			aux <<= n;
-			memcpy(&(stream[N]), &aux, sizeof(__m128i));
-
-			print128_num(stream[N+1], 1);
-			print128_num(stream[N], 1);
-			printf("N = %d\n", N);
-			break;
-		}
-
-		value &= 0x1ffff;
-
-		//Debug value, to be shown.
-		if (value > predicate_global)
-			count++;
-
-		if (n > 17) {
-			aux <<= 17;
-			aux |= value;
-			n -= 17;
-
-		} else {
-			aux <<= n;
-			aux |= (value >> (17 - n));
-
-			memcpy(&(stream[N]), &aux, sizeof(__m128i));
-
-			//Going backwards up the array
-			// (big endian)
-			N--;
-			aux = value;
-			n = 128 - (17 - n);
-		}
-
-	}
-
-	printf("CHEAT = %d!\n", count);
-
-	return nb_of_elements;
-}
-/*
- * Stream must be padded with zeroes to 
- */
-void count_query(uint8_t *stream, int numberOfElements,int nb_values, int predicate)
-{
-	/**** 17 bits case, 128  bits buffer *
-	 *
-	 *
-	 * Schema = 881 - ... .... - 188 Exery 8 value
-	 * ***/
-
-	__m128i predicate_value[2];
-	__m128i loaded_value, cmp_result;
-	__m128i clean_registers[2];
-	__m128i shuffle_register;	//Shuffle mask
-	__m128i unsigned_to_signed = _mm_set_epi8( INT8_MIN,INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN, INT8_MIN);
-	__m128i uns2 = _mm_set_epi32(INT32_MIN, INT32_MIN, INT32_MIN, INT32_MIN);
-
-	//The stack is aligned, the heap isn't. So we
-	//need a buffer for the SIMD operations
-	__m128i c;
-
-
-	uint8_t predicate_buffer[32]; 
-	__m128i *p_buffer = (__m128i*) predicate_buffer;
-	unsigned long long res;
-	unsigned __int128 pred_aux = 0;
-
-	int final_result = 0, m_result, i;
-	int stream_element = 0, n;
-	//final_result = result number
-	//m_result = result mask
-
-
-	unsigned char shuffle_mask[16] = {
-		0x80, 7, 8, 9,
-		0x80, 9, 10, 11,
-		0x80, 11, 12, 13,
-		0x80, 13, 14, 15
-	};
-
-
-
-	/*
-	 * Creating the prediacte in a roundabout way,
-	 * May be useful to recheck the masks values.
-	 */
-	predicate &= 0x1FFFF;
-	pred_aux = predicate;
-	n = 128;
-
-	for(i=0;i<2;i++){
-		while(n>=17){
-			pred_aux <<= 17;
-			n -= 17;
-			pred_aux |= predicate;
-		}
-		pred_aux <<= n;
-		pred_aux |= (predicate >> (17-n));
-		if(i){
-			memcpy(p_buffer, &pred_aux, sizeof(uint8_t)* 16);
-		}else{
-			memcpy(p_buffer + 1, &pred_aux, sizeof(uint8_t) * 16);
-		}
-		//print128_num(c, 0);
-		pred_aux = predicate; 
-		n = 128 - (17-n);
-	}
-
-
-
-
-	clean_registers[0] = _mm_set_epi32(0xffff8000,
-					   0x7fffc000, 0x3fffe000, 0x1ffff000);
-	clean_registers[1] = _mm_set_epi32(0xffff800,
-					   0x7fffc00, 0x3fffe00, 0x1ffff00);
-
-	shuffle_register = _mm_loadu_si128((__m128i *) shuffle_mask);
-
-	memcpy(&c, &(predicate_buffer[16]), sizeof(uint8_t) * 16);
-	printf("Predicate buffer 1\n");
-	print128_num(c, 1);
-	predicate_value[0] = _mm_shuffle_epi8(c, shuffle_register);
-	memcpy(&c, &(predicate_buffer[8]), sizeof(uint8_t) * 16);
-	printf("Predicate buffer 2\n");
-	print128_num(c, 1);
-	predicate_value[1] = _mm_shuffle_epi8(c, shuffle_register);
-
-	predicate_value[0] = _mm_and_si128(predicate_value[0], clean_registers[0]);
-	predicate_value[1] = _mm_and_si128(predicate_value[1], clean_registers[1]);
-
-	printf("Cleaned predicate codes, with buffers:\n");
-	printf("Value 0\n");
-	print128_num(predicate_value[0], 1);
-	print128_num(clean_registers[0], 1);
-
-	printf("Value 1\n");
-	print128_num(predicate_value[1], 1);
-	print128_num(clean_registers[1], 1);
-
-	printf("\n");
-
+	long long res;
 	res = tick();
 
-	predicate_value[0] = _mm_add_epi32(predicate_value[0], unsigned_to_signed);
-	predicate_value[1] = _mm_add_epi32(predicate_value[1], unsigned_to_signed);
+	//1st load
+	input = (__m128i*) *stream;
+	old_reg = _mm_load_si128 (input);
 
-	i = 1;
-	while (stream_element < nb_values) {
-		i = i ? 0 : 1;
+	__m128i shuffled = _mm_shuffle_epi8 (old_reg, mask_register);
+	__m128i cleaned = _mm_and_si128(shuffled, clean_register);
+	__m128i result = _mm_cmplt_epi32(cleaned, upper_bound);
+	cur_res = _mm_movemask_ps((__m128) result);
+	count += _popcnt32(cur_res);
 
-		memcpy(&c, stream, sizeof(uint8_t) * 16);
+	//2nd part
+	shuffled = _mm_shuffle_epi8 (old_reg, mask_register2);
+	cleaned = _mm_and_si128(shuffled, clean_register2);
+	result = _mm_cmplt_epi32(cleaned, upper_bound2);
+	cur_res = _mm_movemask_ps((__m128) result);
+	count += _popcnt32(cur_res);
 
-		loaded_value = _mm_shuffle_epi8(c, shuffle_register);
-
-		memset(&cmp_result, 0, sizeof(__m128i));
-
-		if (i) {
-			loaded_value =
-			    _mm_and_si128(loaded_value, clean_registers[1]);
-
-		loaded_value = _mm_add_epi32(loaded_value, unsigned_to_signed);
-
-			cmp_result =
-			    _mm_cmpgt_epi32(loaded_value, predicate_value[1]);
-
-			stream -= 9;
-		} else {
-			loaded_value =
-			    _mm_and_si128(loaded_value, clean_registers[0]);
-		loaded_value = _mm_add_epi32(loaded_value, unsigned_to_signed);
-			cmp_result =
-			    _mm_cmpgt_epi32(loaded_value, predicate_value[0]);
-			stream -= 8;
+	elements_read += 7;
+/*	
+	int i = 1;
+	int shiftAmount = 15;
+	int left_spanning_bits = 1; 
+	while(elements_read < numberOfElements){  
+		if(left_spanning_bits % 7 == 0){
+			shiftAmount--;
+		}
+		if(shiftAmount < 0)
+			shiftAmount = 15;
+		if(shiftAmount != 0){
+			input = (__m128i*) *stream + i;
+			cur_reg = _mm_load_si128 (input);
 		}
 
+		//Last parameter should be given at compile time.
+		if(shiftAmount == 15)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 15);
+		else if(shiftAmount == 14)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 14);
+		else if(shiftAmount == 13)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 13);
+		else if(shiftAmount == 12)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 12);
+		else if(shiftAmount == 11)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 11);
+		else if(shiftAmount == 10)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 10);
+		else if(shiftAmount == 9)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 9);
+		else if(shiftAmount == 8)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 8);
+		else if(shiftAmount == 7)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 7);
+		else if(shiftAmount == 6)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 6);
+		else if(shiftAmount == 5)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 5);
+		else if(shiftAmount == 4)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 4);
+		else if(shiftAmount == 3)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 3);
+		else if(shiftAmount == 2)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 2);
+		else if(shiftAmount == 1)
+			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 1);
+		else if(shiftAmount == 0)
+			aligned_reg = old_reg;
 
-		//Vith 32 bits comparison, four values are read at a time
-		stream_element += 4;
-		m_result = _mm_movemask_ps((__m128) cmp_result);
 
-		if(_popcnt32(m_result != 15)){
-			printf("Found a result, result = %d\n", m_result);
-			printf("Value:\t\t");
-			print128_num(loaded_value, 1);
-			printf("Clean mask\t");
-			print128_num(clean_registers[i], 1);
-			printf("Predicate:\t");
-			print128_num(predicate_value[i], 1);
-			printf("cmp_result\t");
-			print128_num(cmp_result, 1);
+			
+		__m128i shuffled = _mm_shuffle_epi8 (aligned_reg, mask_register);
+		__m128i cleaned = _mm_and_si128(shuffled, clean_register);
+		__m128i result = _mm_cmplt_epi32(cleaned, upper_bound);
+
+		cur_res = _mm_movemask_ps((__m128) result);
+		count += _popcnt32(cur_res);
+
+		//cur_res |= (_mm_movemask_ps((__m128) result)) << (elements_read % 30);
+
+		//2nd part
+		shuffled = _mm_shuffle_epi8 (aligned_reg, mask_register2);
+		cleaned = _mm_and_si128(shuffled, clean_register);
+		result = _mm_cmplt_epi32(cleaned, upper_bound);
+
+		cur_res = _mm_movemask_ps((__m128) result);
+		count += _popcnt32(cur_res);
+		//cur_res |= (_mm_movemask_ps((__m128) result)) << (elements_read % 30);
+
+		//3rd part
+		shuffled = _mm_shuffle_epi8 (aligned_reg, mask_register3);
+		cleaned = _mm_and_si128(shuffled, clean_register);
+		result = _mm_cmplt_epi32(cleaned, upper_bound);
+
+		cur_res = _mm_movemask_ps((__m128) result);
+                count += _popcnt32(cur_res);       
+		//cur_res |= (_mm_movemask_ps((__m128) result)) << (elements_read % 30);
+		elements_read += 10;
+
+		if(shiftAmount != 0){
+			old_reg = cur_reg;
+			i++;
 		}
-		
+		shiftAmount--;
 
-		final_result += _popcnt32(m_result);
-
+		//Bit vector case
+		//if(elements_read % 30 == 0){
+		//	result_vector[elements_read/30 - 1] = cur_res;
+		//	cur_res = 0;
+		//}
 	}
-
+	*/
 	res = tick() - res;
-	printf
-	    ("Selected %d values in %lld cycles! \nIt took %lf cycles for each code. \n",
-	     final_result, res, res / (numberOfElements * 1.0));
+	printf("Selected %d values in %lld cycles! \nIt took %lf cycles for each code. \n", count, res, res  / (numberOfElements * 1.0));
 }
 
-int main(int argc, char *argv[])
-{
-	__m128i *stream;
-	FILE *f = NULL;
-	int elements_nb;
-	int nb_values;
-	predicate_global = 30;
+int load_data(char *fname, int num_of_bits, int num_of_elements, uint64_t **stream){
+ 	FILE *file;
+	int newVal = 0, prevVal = 0;
+	uint64_t writtenVal = 0;
+	unsigned long lineInd = 0;
+	if((file = fopen(fname, "r")) == NULL)
+		return(-1);
 
-	if (argc < 2) {
-		printf("Usage: %s <filename>\n", argv[0]);
-		return EXIT_FAILURE;
+	if (fseek(file, 0, SEEK_END) != 0)
+	{
+		perror("fseek");
+		exit(1); 
+	}
+   	int size_indata = ftell(file);
+    	rewind(file);
+	*stream = (uint64_t *) memalign(8, num_of_elements * sizeof(uint64_t));
+
+	int modVal = 0;
+	unsigned long curIndex = 0, prevIndex = 0;
+	int8_t first_part, second_part;
+
+	int bits_written = 0;
+	int bits_remaining = 0; //Number of bits that roll over to next index from the last value written into the previous index
+
+	int err;
+	while(!feof(file)){
+		err = fscanf(file, "%u", &newVal);
+		curIndex = ((lineInd) * num_of_bits / 64); //Index of the buffer to gather 8 bit-access
+		//curIndex = bits_written / 64;
+		if(curIndex != prevIndex){
+			(*stream)[prevIndex] = writtenVal;
+			//printf("Written to index %d : %llu \n", prevIndex, (*stream)[prevIndex]);
+			bits_remaining = bits_written - 64;
+			bits_written = 0;
+
+			//printf("Bits remaining: %d\n", bits_remaining);
+			if(bits_remaining > 0){
+				writtenVal = ((uint64_t) prevVal) >> (num_of_bits - bits_remaining);
+				bits_written = bits_remaining;
+				writtenVal |= ((uint64_t) newVal) << bits_written;
+				bits_written += num_of_bits;
+			}
+			else{
+				writtenVal = (uint64_t) newVal;
+				bits_written += num_of_bits;
+			}
+		}
+		else{
+			writtenVal |= ((uint64_t) newVal) << bits_written;
+			bits_written += num_of_bits;
+		}
+
+		//printf("%d %d %llu %llu %d \n\n", lineInd, curIndex, writtenVal, newVal, bits_written);
+		prevIndex = curIndex;
+		prevVal = newVal;
+		lineInd++;
 	}
 
-	if ((f = fopen(argv[1], "r")) == NULL) {
-		perror("fopen");
-		return EXIT_FAILURE;
+	if(file){
+		fclose(file);
 	}
+	return(0);
+}
 
-	elements_nb = load_data_17bits(f, &nb_values, &stream);
- 
-	count_query((uint8_t*)stream, elements_nb, nb_values, predicate_global);
+int main(int argc, char * argv[]){
+        if(argc < 4){
+                printf("Usage: %s <file> <num_of_bits> <num_of_elements> <predicate>\n", argv[0]);
+                exit(1);
+        }
 
-	return 0;
+	uint64_t *data_stream;
+	int errno;
+
+	errno = load_data(argv[1], atoi(argv[2]), atoi(argv[3]), &data_stream);
+	count_query(&data_stream, atoi(argv[3]), atoi(argv[4]));
+
+	free(data_stream);
 }

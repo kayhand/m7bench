@@ -9,17 +9,19 @@
 #include <string.h>
 #include <inttypes.h>
 
-static __inline__ unsigned long long tick(void){
-  unsigned hi, lo;
-  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
-  return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
-}
+#include "../util/time.h"
 
 void print128_num(__m128i var)
 {
+    uint8_t *val_8 = (uint8_t*) &var;
+    printf("Numerical (8 bits): %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u\n",
+           val_8[0], val_8[1], val_8[2], val_8[3], val_8[4], val_8[5], val_8[6], val_8[7],
+           val_8[8], val_8[9], val_8[10], val_8[11], val_8[12], val_8[13], val_8[14], val_8[15]);
+
     uint16_t *val = (uint16_t*) &var;
     printf("Numerical (16 bits): %u %u %u %u %u %u %u %u\n",
            val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7]);
+
 
 //    uint32_t *val_32 = (uint32_t*) &var;
   //  printf("Numerical (32 bits): %i %i %i %i\n\n",
@@ -54,6 +56,7 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 	mask[12] = 0x80;mask[13] = 0x80;
 	mask_register3 = _mm_loadu_si128((__m128i *)mask); 
 
+	//				[3]	[2]	[1]	[0]
 	clean_register = _mm_set_epi32(0xFFF0, 0x0FFF, 0xFFF0, 0x0FFF);
 	
 	//__m128i lower_bound = _mm_set_epi32(16384, 1024, 16384, 1024);
@@ -72,6 +75,9 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 	//1st load
 	input = (__m128i*) *stream;
 	old_reg = _mm_load_si128 (input);
+
+	print128_num(*input);
+	print128_num(old_reg);
 
 	__m128i shuffled = _mm_shuffle_epi8 (old_reg, mask_register);
 	__m128i cleaned = _mm_and_si128(shuffled, clean_register);
