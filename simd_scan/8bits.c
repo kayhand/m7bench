@@ -9,11 +9,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-static __inline__ unsigned long long tick(void){
-  unsigned hi, lo;
-  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
-  return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
-}
+#include "../util/time.h"
 
 void print128_num(__m128i var)
 {
@@ -60,8 +56,11 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
         unsigned int count = 0;
 	int i = 0;
 
+	
+        unsigned long long ts1, ts2;
         long long res;
         res = tick();
+        ts1 = timestamp();
 
 	while(elements_read < numberOfElements){
 		input = (__m128i*) *stream + i;
@@ -91,7 +90,10 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 		elements_read += 16;
 		i++;
 	}
+	ts2 = timestamp();
         res = tick() - res;
+        unsigned long long elapsed = (ts2 - ts1);
+        printf("It took %lf ns for each code. \n", (elapsed / (numberOfElements * 1.0)));
         printf("Selected %d values in %lld cycles! \nIt took %lf cycles for each code. \n", count, res, res  / (numberOfElements * 1.0));
 }
 

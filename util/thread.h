@@ -66,7 +66,7 @@ void *worker(void *args){
 	pthread_mutex_unlock(query_args->start_mutex);
 
 	int loop;
-	for(loop = 0; loop < 5000; loop++)
+	for(loop = 0; loop < 1000; loop++)
 		query_args->count_query(query_args->stream, start, end, bit_vector, query_args->num_of_bits, query_args->num_of_segments, query_args->num_of_elements, query_args->predicate);
 
 	free(bit_vector);

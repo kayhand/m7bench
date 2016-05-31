@@ -219,15 +219,22 @@ int main(int argc, char * argv[]){
 		pthread_mutex_unlock(&start_mutex);
 	} while(wait);
 
-	long long res;
-	res = tick();
+
+        unsigned long long ts1, ts2;
+        long long res;
+        res = tick();
+        ts1 = timestamp();
+
 	pthread_cond_broadcast(&start_cond);
 	printf("Threads starting ...\n\n");
-
 	joinThreads(threads, num_of_threads);
 
+	ts2 = timestamp();
 	res = tick() - res;
-	printf("It took %lld cycles! in total and \n%lf cycles for each code. \n\n", res, res  / (num_of_elements * 5000.0));
+        unsigned long long elapsed = (ts2 - ts1);
+
+        printf("It took %lf ns for each code. \n", (elapsed / (num_of_elements * 1000.0)));
+	printf("It took %lld cycles! in total and \n%lf cycles for each code. \n\n", res, res  / (num_of_elements * 1000.0));
 	printf("In a single cycle %lf codes were processed. \n\n", num_of_elements / (res  / 1000.0) );
 
 	pthread_attr_destroy(&attr);

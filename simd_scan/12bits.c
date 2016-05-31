@@ -10,6 +10,8 @@
 #include <inttypes.h>
 
 #include "../util/time.h"
+#include <sys/time.h>
+
 
 void print128_num(__m128i var)
 {
@@ -69,8 +71,10 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 	int elements_read = 0;
 	int count = 0;
 
+	unsigned long long ts1, ts2;
 	long long res;
 	res = tick();
+	ts1 = timestamp();
 
 	//1st load
 	input = (__m128i*) *stream;
@@ -111,7 +115,7 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 			cur_reg = _mm_load_si128 (input);
 		}
 
-		//Compiler needs a direct value.
+		//Compiler needs a constant value.
 		if(shiftAmount == 15)
 			aligned_reg = _mm_alignr_epi8(cur_reg, old_reg, 15);
 		else if(shiftAmount == 14)
@@ -187,7 +191,10 @@ void count_query(uint64_t **stream, int numberOfElements, int predicate){
 			cur_res = 0;
 		}*/
 	}
+	ts2 = timestamp();
 	res = tick() - res;
+	unsigned long long elapsed = (ts2 - ts1);
+	printf("It took %lf ns for each code. \n", (elapsed / (numberOfElements * 1.0))); 
 	printf("Selected %d values in %lld cycles! \nIt took %lf cycles for each code. \n", count, res, res  / (numberOfElements * 1.0));
 }
 
