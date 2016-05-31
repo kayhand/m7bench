@@ -1,0 +1,14 @@
+500 000 000 Values.
+Query completed in 824320485ns, 26ns per stream element
+Query completed in 1261998660ns, 20ns per stream element
+Query completed in 188109210ns, 2ns per stream element
+Query completed in 406568760ns, 4ns per stream element
+Query completed in 1781395050ns, 14ns per stream element
+500 000 000 Values.
+case 4Query completed in 750655755ns, 24ns per stream element
+case 8Query completed in 1073785770ns, 17ns per stream element
+case 9Query completed in 188797770ns, 2ns per stream element
+case 12Query completed in 407377065ns, 4ns per stream element
+case 16Query completed in 1081897980ns, 8ns per stream element
+500 000 000 Values.
+case 4500 000 000 Values.
