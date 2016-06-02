@@ -157,8 +157,6 @@ Parser::Parser(string filename){
 	getline(file, buff);
 	exploded = explode(buff, DELIMITER);
 
-	//Ignore the comments section
-	t.nb_columns = exploded.size() - 1;
 	t.columns = new column [t.nb_columns];
 
 	for(i=0;i<t.nb_columns;i++){
