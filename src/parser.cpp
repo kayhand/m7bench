@@ -111,10 +111,12 @@ Parser::Parser(string filename){
 		length++;
 	}
 
+	t.nb_lines = length;
 
 	for(i=0;i<t.nb_columns;i++){
 		t.columns[i].data = new int [length]();
 	}
+
 
 
 	file.close();
@@ -171,6 +173,8 @@ table *Parser::parse(){
 			}
 		}
 		line++;
+		if(line > t.nb_lines)
+			break;
 	}
 
 	//The dictionnary of each colum is constructed from the keys map

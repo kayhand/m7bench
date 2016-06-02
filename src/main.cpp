@@ -13,7 +13,8 @@ int main(int argc, char ** argv){
 	p.compress();
 	
 
-	cout << "Done.\n";
+	//cout << "Done.\n";
+	cout << "All values: " << p.get()->nb_columns << " and " << p.get()->nb_lines << endl;
 
 	return 0;
 }
