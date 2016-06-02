@@ -1,80 +1,11 @@
-#include <fstream>
-#include <cstdint>
-#include <cinttypes>
-#include <cmath>
-#include <iostream>
-#include <istream>
-#include <map>
-#include <sstream>
-#include <string>
-#include <utility>
-#include <vector>
+
+#include "parser.h"
 
 #define DELIMITER '|'
 
 using namespace std;
 std::vector<std::string> explode(std::string const & s, char delim);
 
-
-struct column{
-	enum data_type_t{
-		INT,
-		DOUBLE,
-		STRING
-	}data_type;
-	/*
-	 *For all data types, the data is present as a list of keys. 
-	 */
-	union{
-		int *data;
-		uint64_t *compressed;
-	};
-
-	int compression_scheme = -1;
-	int compressed_nb_of_lines;
-
-	int nb_keys = 0;
-
-	union{
-		string *dictionnary = NULL;
-		int *i_dic;
-		double *d_dic;
-	};
-
-	//Temporary storage for the keys/values
-	//while the dictionnary is being built.
-	map<string,int> keys;
-	map<int,int> i_keys;
-	map<double,int> d_keys;
-};
-
-struct table{
-	int nb_columns, nb_lines;
-	column *columns = NULL;
-};
-
-class Parser{
-	struct table t;
-	string path;
-	bool isInt(string s){
-		for(char e : s){
-			if(e > '9' || e < '0')
-				return false;
-		}
-		return true;
-	}
-
-	//Replaced data with a compressed version
-	void actual_compression(column &c, int bits, int nb_values);
-
-	public:
-	Parser(string filename);
-	~Parser();
-	table *parse();
-	table *compress();
-	table *get(){return &t;}
-
-};
 
 void Parser::actual_compression(column &c, int bits, int nb_values){
 	uint64_t *new_tab;
@@ -157,6 +88,7 @@ Parser::Parser(string filename){
 	getline(file, buff);
 	exploded = explode(buff, DELIMITER);
 
+	t.nb_columns = exploded.size();
 	t.columns = new column [t.nb_columns];
 
 	for(i=0;i<t.nb_columns;i++){
@@ -314,21 +246,6 @@ Parser::~Parser(){
 	t.columns = nullptr;
 }
 
-int main(int argc, char ** argv){
-	if(argc < 2){
-		cerr << "Usage: " << argv[0] << " filename\n";
-		return EXIT_FAILURE;
-	}
-
-	Parser p = Parser(argv[1]);
-	p.parse();
-	p.compress();
-	
-
-	cout << "Done.\n";
-
-	return 0;
-}
 
 std::vector<std::string> explode(std::string const & s, char delim)
 {
