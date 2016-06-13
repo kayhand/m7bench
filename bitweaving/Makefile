@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS= -O3 
+CC=/opt/solaris/bin/cc
+CFLAGS= -O3  
 RM=rm -f
 OUT=bitweaving
 INCLUDES=-I .

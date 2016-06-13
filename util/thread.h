@@ -7,14 +7,14 @@ typedef struct {
         int num_of_bits;
         int num_of_segments;
         int num_of_elements;
-        int predicate;
+        int predicate, predicate_max;
 	int num_of_threads;
 
 	pthread_mutex_t *start_mutex;
 	pthread_cond_t *start_cond;
 	int *thread_count;
 
-	void (*count_query)(uint64_t*, int, int, uint64_t*, int, int, int, int);
+	void (*count_query)(uint64_t*, int, int, uint64_t*, int, int, int, int, int);
 } query_params;
 
 int returnCpuId(int thread_count){
@@ -67,7 +67,7 @@ void *worker(void *args){
 
 	int loop;
 	for(loop = 0; loop < 1000; loop++)
-		query_args->count_query(query_args->stream, start, end, bit_vector, query_args->num_of_bits, query_args->num_of_segments, query_args->num_of_elements, query_args->predicate);
+		query_args->count_query(query_args->stream, start, end, bit_vector, query_args->num_of_bits, query_args->num_of_segments, query_args->num_of_elements, query_args->predicate, query_args->predicate_max);
 
 	free(bit_vector);
 	pthread_exit(NULL);
