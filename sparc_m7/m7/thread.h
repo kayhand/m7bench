@@ -4,7 +4,7 @@
 typedef struct {
 	int elements;
 	int elem_width;
-	int predicate;
+	int predicate_min, predicate_max;
 	uint64_t *data;
 
 	int num_of_threads;
@@ -12,14 +12,15 @@ typedef struct {
 	pthread_cond_t *start_cond;
 	int *thread_count;
 
-	void (*count_query)(dax_vec_t*, dax_vec_t*, dax_int_t*);
+	void (*count_query)(dax_vec_t*, dax_vec_t*, dax_int_t*, dax_int_t*);
 } query_params;
 
 
 void *worker(void *args){
 	query_params *query_args = (query_params *) args;
+	dax_int_t bound1 = {0}, bound2 = {0};
+	dax_vec_t src = {0}, dst = {0};
 
-	dax_vec_t src = {0};
 	src.elements = query_args->elements;
 	src.format = DAX_BITS;
 	src.elem_width = query_args->elem_width;
@@ -27,12 +28,15 @@ void *worker(void *args){
 	src.data = malloc(src.elements * src.elem_width);
 	src.data = query_args->data;
 
-	dax_int_t bound1 = {0};
+
 	bound1.format = DAX_BITS;
 	bound1.elem_width = src.elem_width;
-	bound1.dword[2] = query_args->predicate;
+	bound1.dword[2] = query_args->predicate_min;
 
-	dax_vec_t dst = {0};
+	bound2.format = DAX_BITS;
+	bound2.elem_width = src.elem_width;
+	bound2.dword[2] = query_args->predicate_max;
+
 	dst.elements = src.elements;
 	dst.format = DAX_BITS;
 	dst.elem_width = 1;
@@ -51,8 +55,8 @@ void *worker(void *args){
 	pthread_mutex_unlock(query_args->start_mutex);
 
 	dax_result_t res;
-		query_args->count_query(&src, &dst, &bound1);
-		//res = dax_scan_value(ctx, 0, &src, &dst, DAX_LT, &bound1);
+	query_args->count_query(&src, &dst, &bound1, &bound2);
+	//res = dax_scan_value(ctx, 0, &src, &dst, DAX_LT, &bound1);
 
 	free(src.data);
 	free(dst.data);

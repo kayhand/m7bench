@@ -26,8 +26,10 @@ int load_data(char *fname, int num_of_bits, int num_of_elements, uint64_t **stre
 	int newVal = 0, prevVal = 0;
 	uint64_t writtenVal = 0;
 	unsigned long lineInd = 0;
-	if((file = fopen(fname, "r")) == NULL)
-		return(-1);
+	if((file = fopen(fname, "r")) == NULL){
+		perror("open");
+		exit(-1);
+	}
 
 	if (fseek(file, 0, SEEK_END) != 0)
 	{
@@ -85,20 +87,24 @@ int load_data(char *fname, int num_of_bits, int num_of_elements, uint64_t **stre
 	return(0);
 }
 
-void count_query(dax_vec_t *src, dax_vec_t *dst, dax_int_t *bound1){ 
+void count_query(dax_vec_t *src, dax_vec_t *dst, dax_int_t *min, dax_int_t *max){ 
 	dax_context_t *ctx;
-	dax_status_t status = dax_thread_init(1,1, 0, NULL, &ctx);
 	dax_result_t res;
+	dax_status_t status = dax_thread_init(1,1, 0, NULL, &ctx);
+
 	for(int loop = 0; loop < 1000; loop++)
-		res = dax_scan_value(ctx, 0, src, dst, DAX_LT, bound1);
+		//res = dax_scan_range(ctx, 0, src, dst, DAX_GE_AND_LE, min, max);
+		res = dax_scan_value(ctx, 0, src, dst, DAX_LT, min);
+
 	//printf("Count : %d\n", res.count);
 	(void) dax_thread_fini(ctx);
 }
 
 int main(int argc, char * argv[])
 {
-	if(argc < 5){
-		printf("Usage: %s <file> <num_of_bits> <num_of_elements> <predicate> <num_of_thread>\n", argv[0]);
+	if(argc < 6){
+		printf("Usage: %s <file> <num_of_bits> <num_of_elements> <min> <max> <num_of_thread>\n", argv[0]);
+		
 		exit(1);
 	}
 
@@ -106,17 +112,20 @@ int main(int argc, char * argv[])
 	dax_status_t status = dax_thread_init(1,1, 0, NULL, &ctx);
 
 	uint64_t criteria1 = atoi(argv[4]);
+	uint64_t criteria2 = atoi(argv[5]);
 	uint64_t *col1;
 	int errno = load_data(argv[1], atoi(argv[2]), atoi(argv[3]), &col1);
 
-	query_params *params;
+	query_params f;
+	query_params *params = &f;
 	params->elements = atoi(argv[3]);
 	params->elem_width = atoi(argv[2]);
 	params->data = col1;
-	params->predicate = criteria1;
+	params->predicate_min = criteria1;
+	params->predicate_max = criteria2;
 	params->count_query = count_query;
 
-	int num_of_threads = atoi(argv[5]);
+	int num_of_threads = atoi(argv[6]);
 	pthread_t threads[num_of_threads];
 	assignThreadParams(params);
 	params->num_of_threads = num_of_threads;
