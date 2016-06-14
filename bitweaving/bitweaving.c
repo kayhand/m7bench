@@ -50,7 +50,6 @@ void printResultVector(uint64_t *result, int elements, int padded, int remainder
 	uint64_t cur_res;
 	uint64_t cur_comp = pow(2, WORD_SIZE - 1 - padded);
 	int bits = 63 - padded; 
-	int count = 0;
 	int i;
 	for(i = 0; i < elements - 1; i++){
 		printf("Segment id : %d\n", i);
@@ -156,14 +155,13 @@ int load_data(char *fname, int codes_per_segment, query_params *params){
 	return(0);
 }
 
-void count_query(uint64_t *stream, int start, int end, uint64_t *bit_vector, uint64_t *aux_vector,
+void count_query(uint64_t *stream, int start, int end, uint64_t *bit_vector, 
 	       	int num_of_bits, int numberOfSegments, int numberOfElements, 
-		int predicate, int predicate2, int first){
+		int predicate, int predicate2){
 	uint64_t upper_bound =  predicate, lower_bound = predicate2;
 	uint64_t mask = ((uint64_t) pow(2, num_of_bits) - 1);
 
 	uint64_t cur_result;
-	int count = 0;
 	int total_codes = num_of_bits + 1; //size of a code with the predicate payload
 	uint64_t local_res = 0, aux_res = 0;
 	int i, j;
@@ -192,11 +190,7 @@ void count_query(uint64_t *stream, int start, int end, uint64_t *bit_vector, uin
 
 			local_res = local_res | (cur_result >> j); 
 		}
-		if(first){
-			bit_vector[i] = local_res;
-		}else{ //Use the results of the previous columns
-			bit_vector[i] = local_res & bit_vector[i];
-		}
+		bit_vector[i] &= local_res;
 		local_res = 0;
 	}
 	//printf("Count: %d\n", count);
@@ -296,6 +290,7 @@ int main(int argc, char * argv[]){
 	pthread_mutex_destroy(&start_mutex);
 	pthread_cond_destroy(&start_cond);
 
+	free(params->bit_vector);
 	//free resources
 	free(params);
 	free(data_stream);
