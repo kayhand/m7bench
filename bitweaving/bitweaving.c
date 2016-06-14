@@ -17,12 +17,17 @@ pthread_mutex_t start_mutex;
 pthread_cond_t start_cond;
 int thread_count = 0;
 
-void reserveMemory(uint64_t **data_stream, int number_of_segments, int num_of_bits){
-	*data_stream = (uint64_t *) malloc(sizeof(uint64_t) * number_of_segments * (num_of_bits + 1) * 2);
+uint64_t *reserveMemory(int number_of_segments, int num_of_bits){
+	void *p = malloc(sizeof(uint64_t) * number_of_segments * (num_of_bits + 1) * 2);
+	if(p == NULL){
+		perror("Malloc: ");
+		exit(-1);
+	}
+	return (uint64_t *) p;
 	//*data_stream = (uint64_t *) memalign(16, number_of_segments * (num_of_bits + 1) * 2 * sizeof(uint64_t));
 }
 
-void assignParams(query_params **params, uint64_t *data_stream, int num_of_bits, int num_of_segments, int num_of_elements, int predicate, int predicate2){
+void assignParams(query_params **params, uint64_t ** data_stream, int num_of_bits, int num_of_segments, int num_of_elements, int predicate, int predicate2){
 	*params = (query_params *) malloc(sizeof(query_params));
 	query_params *p = *params;
 
@@ -83,8 +88,12 @@ int load_data(char *fname, int codes_per_segment, query_params *params){
  	FILE *file;
 	if((file = fopen(fname, "r")) == NULL){
 		perror("fopen");
+		fprintf(stderr, "The filename was: %s\n", fname);
 		exit(-1);
 	}
+
+	uint64_t *stream = params->stream[params->count_stream];
+	params->count_stream++;
 
 	int curSegment = 0, prevSegment = 0;
 	int values_written = 0, codes_written = 0;
@@ -106,13 +115,13 @@ int load_data(char *fname, int codes_per_segment, query_params *params){
 		rowId = codes_written % (params->num_of_bits + 1);
 		//Check if we need to append to an existing word
 		if(codes_written < (params->num_of_bits + 1)){
-			params->stream[curSegment * rows + codes_written] = newVal;
-			//params->stream[curSegment][codes_written] = (0 << params->num_of_bits) | newVal; 
+			stream[curSegment * rows + codes_written] = newVal;
+			//stream[curSegment][codes_written] = (0 << params->num_of_bits) | newVal; 
 		}
 		else{
-			curVal = params->stream[curSegment * rows + rowId];
+			curVal = stream[curSegment * rows + rowId];
 			curVal = curVal << rows;
-			params->stream[curSegment * rows + rowId] = curVal | newVal;
+			stream[curSegment * rows + rowId] = curVal | newVal;
 		}
 		values_written++;
 		codes_written++;
@@ -129,9 +138,9 @@ int load_data(char *fname, int codes_per_segment, query_params *params){
 	while(remainder > 0){
 		rowId = codes_written % (params->num_of_bits + 1);
 		curSlot = curSegment * rows + rowId;
-		curVal = params->stream[curSlot];
+		curVal = stream[curSlot];
 		curVal = curVal << rows;
-		params->stream[curSlot] = curVal | ((0 << params->num_of_bits) | params->predicate);
+		stream[curSlot] = curVal | params->predicate;
 		codes_written++;
 		remainder--;
 	}
@@ -147,7 +156,9 @@ int load_data(char *fname, int codes_per_segment, query_params *params){
 	return(0);
 }
 
-void count_query(uint64_t *stream, int start, int end, uint64_t *bit_vector, int num_of_bits, int numberOfSegments, int numberOfElements, int predicate, int predicate2){
+void count_query(uint64_t *stream, int start, int end, uint64_t *bit_vector, uint64_t *aux_vector,
+	       	int num_of_bits, int numberOfSegments, int numberOfElements, 
+		int predicate, int predicate2, int first){
 	uint64_t upper_bound =  predicate, lower_bound = predicate2;
 	uint64_t mask = ((uint64_t) pow(2, num_of_bits) - 1);
 
@@ -181,7 +192,11 @@ void count_query(uint64_t *stream, int start, int end, uint64_t *bit_vector, int
 
 			local_res = local_res | (cur_result >> j); 
 		}
-		bit_vector[i] = local_res;
+		if(first){
+			bit_vector[i] = local_res;
+		}else{ //Use the results of the previous columns
+			bit_vector[i] = local_res & bit_vector[i];
+		}
 		local_res = 0;
 	}
 	//printf("Count: %d\n", count);
@@ -191,29 +206,49 @@ void count_query(uint64_t *stream, int start, int end, uint64_t *bit_vector, int
 
 int main(int argc, char * argv[]){
 
-        if(argc < 6){
-                printf("Usage: %s <file> <num_of_bits> <num_of_elements> <min> <max> <num_of_threads>\n", argv[0]);
-                exit(1);
-        }
-
-	int num_of_bits = atoi(argv[2]);
-	int num_of_elements = atoi(argv[3]);
-	int predicate = atoi(argv[5]);
-	int predicate2 = atoi(argv[4]);
-
-	int num_of_codes = WORD_SIZE / (num_of_bits + 1); //Number of codes in each processor word
-	int codes_per_segment = num_of_codes * (num_of_bits + 1); //Number of codes that fit in a single segment
-	int num_of_segments =  ceil(num_of_elements * 1.0 / codes_per_segment); //Total number of segments needed to keep the data
-
-	uint64_t *data_stream;
-	reserveMemory(&data_stream, num_of_segments, num_of_bits);
-
+	int i;
+	int num_of_bits, num_of_elements, predicate, predicate2, num_of_codes, codes_per_segment, num_of_segments;
+	uint64_t ** data_stream;
 	query_params *params;
-	assignParams(&params, data_stream, num_of_bits, num_of_segments, num_of_elements, predicate, predicate2); 
-	if(load_data(argv[1], codes_per_segment, params) != 0){
-		perror("Load data");
-		return -1;
+
+	if(argc < 7){
+		printf("Usage: %s <nb_bits> <nb_elements> <min> <max> <nb_threads> <files>+  ", argv[0]);
+		//			1	2	   3	4	5	    6
+
+		exit(1);
 	}
+
+	/*Getting the args*/
+	num_of_bits = atoi(argv[1]);
+	num_of_elements = atoi(argv[2]);
+	predicate = atoi(argv[3]);
+	predicate2 = atoi(argv[4]);
+	num_of_codes = WORD_SIZE / (num_of_bits + 1); //Number of codes in each processor word
+	codes_per_segment = num_of_codes * (num_of_bits + 1); //Number of codes that fit in a single segment
+	num_of_segments =  ceil(num_of_elements * 1.0 / codes_per_segment); //Total number of segments needed to keep the data
+
+
+	//An array for each file
+	data_stream = malloc(sizeof(uint64_t *) * (argc - 5));
+	if(data_stream == NULL){
+			perror("Malloc data ");
+			exit(-1);
+	}
+	for(i=0; i < argc - 5; i++){
+		data_stream[i] = reserveMemory( num_of_segments, num_of_bits);
+	}
+
+	assignParams(&params, data_stream, num_of_bits, num_of_segments, num_of_elements, predicate, predicate2); 
+	params->nb_streams = argc - 5;
+	params->count_stream = 0;
+
+
+	for(i=6; i < argc; i++)
+		if(load_data(argv[i], codes_per_segment, params) != 0){
+			perror("Load data");
+			return -1;
+		}
+
 	params->count_query = count_query;
 
 	int num_of_threads = atoi(argv[6]);
