@@ -72,6 +72,7 @@ void *worker(void *args){
 
 	int loop;
 	for(loop = 0; loop < 1000; loop++){ //Loops a thousand times and then
+		i=0;
 		//on each column.
 		//First, the last argument of the query functions tells whether aux_vector holds any meaningful values
 		query_args->count_query(query_args->stream[i], start, end, bit_vector, aux_vector, 
@@ -79,7 +80,7 @@ void *worker(void *args){
 				query_args->num_of_elements, query_args->predicate, query_args->predicate_max, !i);
 		memcpy(aux_vector, bit_vector, sizeof(uint64_t) * (query_args->num_of_segments));
 
-		for(i=1 ; i < query_args->count_stream ; i++){
+		for(i=1 ; i < query_args->nb_streams; i++){
 			if(i%2)
 				query_args->count_query(query_args->stream[i], start, end, bit_vector, aux_vector, 
 						query_args->num_of_bits, query_args->num_of_segments, 

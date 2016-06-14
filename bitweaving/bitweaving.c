@@ -251,7 +251,7 @@ int main(int argc, char * argv[]){
 
 	params->count_query = count_query;
 
-	int num_of_threads = atoi(argv[6]);
+	int num_of_threads = atoi(argv[5]);
 	pthread_t threads[num_of_threads];
 	assignThreadParams(params);
 	params->num_of_threads = num_of_threads;
