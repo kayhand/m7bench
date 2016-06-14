@@ -1,4 +1,4 @@
-CC=/opt/solaris/bin/cc
+CC=gcc
 CFLAGS= -O3  
 RM=rm -f
 OUT=bitweaving
