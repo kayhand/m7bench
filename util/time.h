@@ -9,7 +9,7 @@ static __inline__ unsigned long long tick(void){
 	__asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
 	return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
 #else
-	return 0;
+	return gethrtime();
 #endif
 }
 

@@ -285,9 +285,12 @@ int main(int argc, char * argv[]){
 	res = tick() - res;
         unsigned long long elapsed = (ts2 - ts1);
 
-        printf("It took %lf ns for each code. \n", (elapsed / (num_of_elements * 1000.0)));
-	printf("It took %lld cycles! in total and \n%lf cycles for each code. \n\n", res, res  / (num_of_elements * 1000.0));
+        printf("It took %lf ns for each code. \n", (elapsed / (num_of_elements * 1000.0 * params->nb_streams)));
+	printf("In a single cycle %lf elements were process.\n", num_of_threads * (1.0 / (elapsed / (num_of_elements * 1000.0 * params->nb_streams ))));
+#ifdef __gnu_linux__
+	printf("It took %lld cycles! in total and \n%lf cycles for each code. \n\n", res, res  / (num_of_elements * 1000.0 * params->nb_streams ));
 	printf("In a single cycle %lf codes were processed. \n\n", num_of_elements / (res  / 1000.0) );
+#endif
 
 	pthread_attr_destroy(&attr);
 	pthread_mutex_destroy(&start_mutex);
