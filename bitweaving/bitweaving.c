@@ -46,6 +46,8 @@ void assignThreadParams(query_params *params){
 	params->thread_count = &thread_count;
 }
 
+
+
 void printResultVector(uint64_t *result, int elements, int padded, int remainder){
 	uint64_t cur_res;
 	uint64_t cur_comp = pow(2, WORD_SIZE - 1 - padded);
@@ -236,7 +238,6 @@ int main(int argc, char * argv[]){
 	params->nb_streams = argc - 5;
 	params->count_stream = 0;
 
-
 	for(i=6; i < argc; i++)
 		if(load_data(argv[i], codes_per_segment, params) != 0){
 			perror("Load data");
@@ -294,4 +295,5 @@ int main(int argc, char * argv[]){
 	//free resources
 	free(params);
 	free(data_stream);
+	return 0;
 }
