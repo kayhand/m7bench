@@ -44,7 +44,7 @@ void *worker(void *args){
 	uint64_t *bit_vector = (uint64_t *) malloc(sizeof(uint64_t) * (query_args->num_of_segments));
 	uint64_t *aux_vector = NULL;
 
-	memset(bit_vector, 1, sizeof(uint64_t) * (query_args->num_of_segments));
+	memset(bit_vector, 255, sizeof(uint64_t) * (query_args->num_of_segments));
 
 	pthread_mutex_lock(query_args->start_mutex);
 	pthread_t cur_thread = pthread_self();
