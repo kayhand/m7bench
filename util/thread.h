@@ -103,6 +103,7 @@ void *worker(void *args){
 		//on each column.
 		//First, the last argument of the query functions tells whether aux_vector holds any meaningful values
 
+		//printf("query nb: %d\n", query_args->nb_streams);
 
 		for(i=0 ; i < query_args->nb_streams; i++){
 				query_args->count_query(query_args->stream[i], start, end, bit_vector, 
