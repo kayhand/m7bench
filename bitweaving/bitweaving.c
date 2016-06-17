@@ -168,6 +168,7 @@ void count_query(uint64_t *stream, int start, int end, uint64_t *bit_vector,
 	uint64_t local_res = 0, aux_res = 0;
 	int i, j;
 
+
 	for(i = 0; i < WORD_SIZE/(num_of_bits + 1) - 1; i++){
 		upper_bound |= (upper_bound << (num_of_bits + 1));
 		lower_bound |= (lower_bound << (num_of_bits + 1));
@@ -217,8 +218,8 @@ int main(int argc, char * argv[]){
 	/*Getting the args*/
 	num_of_bits = atoi(argv[1]);
 	num_of_elements = atoi(argv[2]);
-	predicate = atoi(argv[3]);
-	predicate2 = atoi(argv[4]);
+	predicate = atoi(argv[4]);
+	predicate2 = atoi(argv[3]);
 	num_of_codes = WORD_SIZE / (num_of_bits + 1); //Number of codes in each processor word
 	codes_per_segment = num_of_codes * (num_of_bits + 1); //Number of codes that fit in a single segment
 	num_of_segments =  ceil(num_of_elements * 1.0 / codes_per_segment); //Total number of segments needed to keep the data
@@ -235,7 +236,7 @@ int main(int argc, char * argv[]){
 	}
 
 	assignParams(&params, data_stream, num_of_bits, num_of_segments, num_of_elements, predicate, predicate2); 
-	params->nb_streams = argc - 5;
+	params->nb_streams = argc - 6;
 	params->count_stream = 0;
 
 	for(i=6; i < argc; i++)
@@ -280,11 +281,12 @@ int main(int argc, char * argv[]){
 	res = tick() - res;
         unsigned long long elapsed = (ts2 - ts1);
 
-        printf("It took %lf ns for each code. \n", (elapsed / (num_of_elements * 1000.0 * params->nb_streams)));
-	printf("In a single cycle %lf elements were process.\n", num_of_threads * (1.0 / (elapsed / (num_of_elements * 1000.0 * params->nb_streams ))));
+        printf("It took %lf ns for each code. \n", (elapsed / (num_of_elements * 1000.0)));
+	printf("In a single cycle %lf elements were process.\n", num_of_threads * (1.0 / (elapsed / (num_of_elements * 1000.0  ))));
+	printf("Total elapsed time: %llu\n", elapsed);
 #ifdef __gnu_linux__
-	printf("It took %lld cycles! in total and \n%lf cycles for each code. \n\n", res, res  / (num_of_elements * 1000.0 * params->nb_streams ));
-	printf("In a single cycle %lf codes were processed. \n\n", num_of_elements / (res  / 1000.0) );
+	printf("It took %lld cycles! in total and \n%lf cycles for each code. \n\n", res, res  / (num_of_elements * 1000.0  ));
+	printf("In a single cycle %lf codes were processed. \n\n", num_of_elements  / (res  / 1000.0) );
 #endif
 
 	pthread_attr_destroy(&attr);
@@ -295,5 +297,4 @@ int main(int argc, char * argv[]){
 	//free resources
 	free(params);
 	free(data_stream);
-	return 0;
 }
