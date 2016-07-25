@@ -66,7 +66,7 @@ void compress(query_params *args, dax_context_t *ctx){
 			exit(-1);
 		}
 		free(aux->data); //Unnecessary now
-		realloc(buf, res.count); //Try to get back some space
+		aux->data = realloc(buf, res.count); //Try to get back some space
 		aux->format |= DAX_ZIP;
 		aux->codec = codec;
 	}
