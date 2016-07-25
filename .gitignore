@@ -1,8 +1,8 @@
-*~
-.*
-*.o
+*
+!*/
+!*.c
+!*.h
+!*.py
+!Makefile
 !.gitignore
-!*.gitignore
 
-*.tex
-.gitignore
