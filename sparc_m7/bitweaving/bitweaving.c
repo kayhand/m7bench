@@ -28,7 +28,6 @@ int countSetBits(unsigned int n)
   return count;
 }
 
-
 void reserveMemory(uint64_t **data_stream, int number_of_segments, int num_of_bits){
 	*data_stream = (uint64_t *) malloc(sizeof(uint64_t) * number_of_segments * (num_of_bits + 1) * 2);
 	//*data_stream = (uint64_t *) memalign(16, number_of_segments * (num_of_bits + 1) * 2 * sizeof(uint64_t));
